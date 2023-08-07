@@ -10,7 +10,7 @@ import {
   WorkRequest,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
-import { LoaderService } from './nx-loader.service';
+import { LoaderService } from './loader.service';
 @Injectable({
   providedIn: 'root',
 })

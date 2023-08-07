@@ -11,18 +11,17 @@ import {
   STATUSES,
   TIMEZONES,
   WorkRequest,
-} from '../common/models';
-import { WorkRequestRestService } from '../core';
-import { ToastService } from '../core/services/toast.service';
-import { LoaderService } from '../core/services/nx-loader.service';
+} from '../../common/models';
+import { WorkRequestRestService } from '../../core';
+import { ToastService } from '../../core/services/toast.service';
+import { LoaderService } from '../../core/services/loader.service';
 
 @Component({
-  selector: 'app-folder',
-  templateUrl: './folder.page.html',
-  styleUrls: ['./folder.page.scss'],
+  selector: 'new-work-request',
+  templateUrl: './new-work-request.page.html',
+  styleUrls: ['./new-work-request.page.scss'],
 })
-export class FolderPage implements OnInit {
-  public folder!: string;
+export class NewWorkRequestPage implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
 
   wrDate: string = moment().format('YYYY-MM-DD HH:mm');
@@ -118,9 +117,6 @@ export class FolderPage implements OnInit {
   }
 
   ngOnInit() {
-    this.folder =
-      (this.activatedRoute.snapshot.paramMap.get('id') as string) || 'Inbox';
-
     this.loadingService.show({
       message: 'Loading...',
     });

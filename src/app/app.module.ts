@@ -9,7 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { WorkRequestRestService } from './core';
 import { ToastService } from './core/services/toast.service';
-import { LoaderService } from './core/services/nx-loader.service';
+import { LoaderService } from './core/services/loader.service';
 
 @NgModule({
   declarations: [AppComponent],

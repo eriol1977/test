@@ -4,13 +4,15 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
+    redirectTo: 'work-request/new-work-request',
     pathMatch: 'full',
   },
   {
-    path: 'folder/:id',
+    path: 'work-request/new-work-request',
     loadChildren: () =>
-      import('./folder/folder.module').then((m) => m.FolderPageModule),
+      import('./work-request/new-work-request/new-work-request.module').then(
+        (m) => m.NewWorkRequestPagePageModule
+      ),
   },
 ];
 
