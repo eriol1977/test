@@ -8,14 +8,116 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">{{ folder }}</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
   <div id="container">
-    <strong class="capitalize">{{ folder }}</strong>
-    <p>Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <ion-grid *ngIf="!wrAdded; else carlo">
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-input
+              label="DATE"
+              [(ngModel)]="wrDate"
+              labelPlacement="stacked"
+              type="datetime"
+              id="open_cal"
+            ></ion-input>
+            <ion-modal
+              trigger="open_cal"
+              [keepContentsMounted]="true"
+              [initialBreakpoint]="0.8"
+            >
+              <ng-template>
+                <ion-datetime
+                  presentation="date-time"
+                  [(ngModel)]="wrDateModal"
+                  mode="md"
+                  [ngModelOptions]="{standalone: true}"
+                  [showDefaultButtons]="true"
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-select
+              label="GMT"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrTimezone"
+            >
+              <ion-select-option
+                *ngFor="let option of timezones"
+                value="{{option.value}}"
+                >{{option.label}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-select
+              label="STATUS"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrStatus"
+            >
+              <ion-select-option
+                *ngFor="let option of statuses"
+                value="{{option.value}}"
+                >{{option.label}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="10">
+          <ion-item>
+            <ion-select
+              label="ASSET LOCATION"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrAssetLocationCode"
+              (ionChange)="onAssetLocationSelected()"
+            >
+              <ion-select-option
+                *ngFor="let loc of assetLocations"
+                value="{{loc.ASLOCODE}}"
+                >{{loc.ASLODESCR}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button
+            id="locationPath"
+            color="light"
+            size="small"
+            class="ion-margin-top"
+            [disabled]="!wrAssetLocationCode"
+          >
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-alert
+            trigger="locationPath"
+            header="Asset Location Path"
+            subHeader="{{wrAssetLocation.ASLODESCR}}"
+            message="{{wrAssetLocation.ASLOIDPATH}}"
+          ></ion-alert
+        ></ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button>
+      <ion-icon name="add" (click)="addWorkRequest()"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
+<ng-template #carlo> Work Request inserita da C.Bagnasco </ng-template>
