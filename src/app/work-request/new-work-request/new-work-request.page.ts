@@ -58,6 +58,8 @@ export class NewWorkRequestPage implements OnInit {
   wrProblemCode: string = '';
   wrProblem: Problem = {};
   allProblems: Problem[] = [];
+  componentProblems: Problem[] = [];
+  problemsComboEnabled: boolean = false;
 
   wrReportedByCode: string = '';
   wrReportedBy: Personnel = {};
@@ -75,15 +77,16 @@ export class NewWorkRequestPage implements OnInit {
     private toastService: ToastService
   ) {}
 
-  onAssetLocationSelected() {
+  onAssetLocationSelected(): void {
     this.wrAssetLocation =
       this.allAssetLocations.filter(
         (loc) => loc.ASLOCODE === this.wrAssetLocationCode
       )[0] || {};
     this.filterComponents();
+    this.filterProblems();
   }
 
-  filterComponents() {
+  filterComponents(): void {
     if (this.wrAssetLocationCode !== '') {
       this.assetLocationComponents = this.allComponents.filter(
         (comp) => comp.COGRCDCLASS === this.wrAssetLocation.ASLOCDCLASS
@@ -98,14 +101,40 @@ export class NewWorkRequestPage implements OnInit {
     this.wrComponent = {};
   }
 
-  onComponentSelected() {
+  onComponentSelected(): void {
     this.wrComponent =
       this.assetLocationComponents.filter(
         (comp) => comp.COGRCDCOMP === this.wrComponentCode
       )[0] || {};
+    this.filterProblems();
   }
 
-  addWorkRequest() {
+  filterProblems(): void {
+    if (this.wrComponentCode !== '') {
+      this.componentProblems = this.allProblems.filter(
+        (prob) =>
+          prob.PRCOCDCOMP === this.wrComponentCode &&
+          prob.PRCOCDCLASS === this.wrAssetLocation.ASLOCDCLASS
+      );
+      this.componentProblems.unshift({ PRCOCDPROBLEM: '' });
+      this.problemsComboEnabled = true;
+    } else {
+      this.componentProblems = [];
+      this.problemsComboEnabled = false;
+    }
+    this.wrProblemCode = '';
+    this.wrProblem = {};
+  }
+
+  onProblemSelected(): void {
+    this.wrProblem =
+      this.componentProblems.filter(
+        (prob) => prob.PRCOCDPROBLEM === this.wrProblemCode
+      )[0] || {};
+    console.log(this.wrProblem.PRCOCDPROBLEM);
+  }
+
+  addWorkRequest(): void {
     this.loadingService.show({
       message: 'Adding Work Request...',
     });

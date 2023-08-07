@@ -160,6 +160,28 @@
           ></ion-alert
         ></ion-col>
       </ion-row>
+
+      <!-- Problem -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-select
+              label="PROBLEM"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrProblemCode"
+              (ionChange)="onProblemSelected()"
+              [disabled]="!problemsComboEnabled"
+            >
+              <ion-select-option
+                *ngFor="let prob of componentProblems"
+                value="{{prob.PRCOCDPROBLEM}}"
+                >{{prob.PRCOCDPROBLEM}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
     </ion-grid>
   </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
