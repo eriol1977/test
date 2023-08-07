@@ -69,10 +69,8 @@ export class NewWorkRequestPage implements OnInit {
   allPersonnel: Personnel[] = [];
 
   wrDescription: string = '';
-  wrNote: string = '';
-  wrIsRepGuest: boolean = false;
-
-  wrAdded: boolean = false;
+  wrNotes: string = '';
+  wrIsRepGuest: string = 'N';
 
   constructor(
     private wrService: WorkRequestRestService,
@@ -87,6 +85,7 @@ export class NewWorkRequestPage implements OnInit {
       )[0] || {};
     this.filterComponents();
     this.filterProblems();
+    this.updateWRDescription();
   }
 
   filterComponents(): void {
@@ -105,11 +104,11 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   onComponentSelected(): void {
-    this.wrComponent =
-      this.assetLocationComponents.filter(
-        (comp) => comp.COGRCDCOMP === this.wrComponentCode
-      )[0] || {};
+    this.wrComponent = this.assetLocationComponents.filter(
+      (comp) => comp.COGRCDCOMP === this.wrComponentCode
+    )[0];
     this.filterProblems();
+    this.updateWRDescription();
   }
 
   filterProblems(): void {
@@ -140,11 +139,31 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   onProblemSelected(): void {
-    this.wrProblem =
-      this.componentProblems.filter(
-        (prob) => prob.PROBCODE === this.wrProblemCode
-      )[0] || {};
-    console.log(this.wrProblem.PROBDESCR);
+    this.wrProblem = this.componentProblems.filter(
+      (prob) => prob.PROBCODE === this.wrProblemCode
+    )[0];
+    this.updateWRDescription();
+  }
+
+  onReportedBySelected(): void {
+    this.wrReportedBy = this.allPersonnel.filter(
+      (pers) => pers.PERSONID === this.wrReportedByCode
+    )[0];
+  }
+
+  private updateWRDescription(): void {
+    this.wrDescription =
+      (this.wrComponent.COGRDESCR || '') +
+      ' ' +
+      (this.wrProblem.PROBDESCR || '');
+  }
+
+  onWRDescriptionChanged(): void {
+    // TODO: remove special characters
+  }
+
+  onWRNotesChanged(): void {
+    // TODO: remove special characters
   }
 
   addWorkRequest(): void {
@@ -152,7 +171,7 @@ export class NewWorkRequestPage implements OnInit {
       message: 'Adding Work Request...',
     });
     let workRequest: WorkRequest = {
-      IDLIST: 'TSTOjisXBkdJQZg', // where from?
+      IDLIST: this.generateRandomString(15), // where from?
       WOREWRTYCODE: 'HD', // FIXED to HD?
       WORECDUNIT: 'VI', // also FIXED from MCM configuration?
       WORESTATCODE: this.wrStatus,
@@ -171,9 +190,9 @@ export class NewWorkRequestPage implements OnInit {
       WORECOGRCODE: this.wrComponentCode,
       WOREPROBCODE: this.wrProblemCode,
       WORENUMBER: '', // should be empty, created by Asset
-      WORENOTE: this.wrNote,
+      WORENOTE: this.wrNotes,
       WORENRATTACH: '', // attachments management?
-      WOREISREPGUEST: this.wrIsRepGuest ? 'Y' : 'N',
+      WOREISREPGUEST: this.wrIsRepGuest,
       IDLISTDEVICE: 'dvZhjisXBkdJQZg', // where from?
       DEVICEID: 'dev-user', // where from?
       CREATIONUSER: '1004', // should be the logged in user Asset usercode
@@ -185,9 +204,19 @@ export class NewWorkRequestPage implements OnInit {
     this.wrService.addWorkRequest(workRequest).subscribe((data) => {
       this.loadingService.hide();
       this.toastService.showSuccess('Work Request added');
-      this.wrAdded = true;
     });
   }
+
+  private generateRandomString = (length: number) => {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
 
   ngOnInit() {
     this.loadingService.show({

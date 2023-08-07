@@ -9,7 +9,7 @@
 
 <ion-content [fullscreen]="true">
   <div id="container">
-    <ion-grid *ngIf="!wrAdded; else carlo">
+    <ion-grid>
       <!-- Date and GMT -->
       <ion-row>
         <ion-col>
@@ -182,6 +182,79 @@
           </ion-item>
         </ion-col>
       </ion-row>
+
+      <!-- Reported By -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-select
+              label="REPORTED BY"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrReportedByCode"
+              (ionChange)="onReportedBySelected()"
+            >
+              <ion-select-option
+                *ngFor="let pers of allPersonnel"
+                value="{{pers.PERSONID}}"
+                >{{pers.PERSONNAME}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- WR Description -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-textarea
+              label="WR DESCRIPTION"
+              labelPlacement="stacked"
+              [autoGrow]="true"
+              maxlength="120"
+              [(ngModel)]="wrDescription"
+              (ionChange)="onWRDescriptionChanged()"
+            >
+            </ion-textarea>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- WR Notes -->
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-textarea
+              label="WR NOTES"
+              labelPlacement="stacked"
+              [autoGrow]="true"
+              [(ngModel)]="wrNotes"
+              (ionChange)="onWRNotesChanged()"
+            >
+            </ion-textarea>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <!-- Reported by Guest -->
+      <ion-row>
+        <ion-col>
+          <ion-item lines="none">
+            <ion-label position="stacked">REPORTED BY GUEST</ion-label>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-radio-group [(ngModel)]="wrIsRepGuest">
+              <ion-radio value="Y" justify="end">Yes</ion-radio><br />
+              <ion-radio value="N" justify="end">No</ion-radio><br />
+            </ion-radio-group>
+          </ion-item>
+        </ion-col>
+      </ion-row>
     </ion-grid>
   </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
@@ -190,4 +263,3 @@
     </ion-fab-button>
   </ion-fab>
 </ion-content>
-<ng-template #carlo> Work Request inserita da C.Bagnasco </ng-template>
