@@ -10,6 +10,7 @@
 <ion-content [fullscreen]="true">
   <div id="container">
     <ion-grid *ngIf="!wrAdded; else carlo">
+      <!-- Date and GMT -->
       <ion-row>
         <ion-col>
           <ion-item>
@@ -54,6 +55,8 @@
           </ion-item>
         </ion-col>
       </ion-row>
+
+      <!-- Status -->
       <ion-row>
         <ion-col>
           <ion-item>
@@ -72,6 +75,8 @@
           </ion-item>
         </ion-col>
       </ion-row>
+
+      <!-- Asset Location -->
       <ion-row>
         <ion-col size="10">
           <ion-item>
@@ -83,7 +88,7 @@
               (ionChange)="onAssetLocationSelected()"
             >
               <ion-select-option
-                *ngFor="let loc of assetLocations"
+                *ngFor="let loc of allAssetLocations"
                 value="{{loc.ASLOCODE}}"
                 >{{loc.ASLODESCR}}</ion-select-option
               >
@@ -109,6 +114,49 @@
             header="Asset Location Path"
             subHeader="{{wrAssetLocation.ASLODESCR}}"
             message="{{wrAssetLocation.ASLOIDPATH}}"
+          ></ion-alert
+        ></ion-col>
+      </ion-row>
+
+      <!-- Component -->
+      <ion-row>
+        <ion-col size="10">
+          <ion-item>
+            <ion-select
+              label="COMPONENT"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrComponentCode"
+              (ionChange)="onComponentSelected()"
+              [disabled]="!componentComboEnabled"
+            >
+              <ion-select-option
+                *ngFor="let comp of assetLocationComponents"
+                value="{{comp.COGRCDCOMP}}"
+                >{{comp.COGRDESCR}}</ion-select-option
+              >
+            </ion-select>
+          </ion-item>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button
+            id="componentPath"
+            color="light"
+            size="small"
+            class="ion-margin-top"
+            [disabled]="!wrComponentCode"
+          >
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-alert
+            trigger="componentPath"
+            header="Component Path"
+            subHeader="{{wrComponent.COGRDESCR}}"
+            message="{{wrComponent.COGRCDPATH}}"
           ></ion-alert
         ></ion-col>
       </ion-row>

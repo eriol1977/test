@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import {
   AssetLocation,
+  Classification,
   ComponentAsset,
   Personnel,
   Problem,
@@ -44,19 +45,26 @@ export class NewWorkRequestPage implements OnInit {
 
   wrAssetLocationCode: string = '';
   wrAssetLocation: AssetLocation = {};
-  assetLocations: AssetLocation[] = [];
+  allAssetLocations: AssetLocation[] = [];
 
-  wrComponentCode: string = 'HT62';
-  components: ComponentAsset[] = [];
+  allClassifications: Classification[] = [];
 
-  wrProblemCode: string = 'ELECT-LIGHT';
-  problems: Problem[] = [];
+  wrComponentCode: string = '';
+  wrComponent: ComponentAsset = {};
+  allComponents: ComponentAsset[] = [];
+  assetLocationComponents: ComponentAsset[] = [];
+  componentComboEnabled: boolean = false;
 
-  wrReportedByCode: string = 'HQS000000000188';
-  personnel: Personnel[] = [];
+  wrProblemCode: string = '';
+  wrProblem: Problem = {};
+  allProblems: Problem[] = [];
 
-  wrDescription: string = 'New App Test III';
-  wrNote: string = 'Note a caso III';
+  wrReportedByCode: string = '';
+  wrReportedBy: Personnel = {};
+  allPersonnel: Personnel[] = [];
+
+  wrDescription: string = '';
+  wrNote: string = '';
   wrIsRepGuest: boolean = false;
 
   wrAdded: boolean = false;
@@ -69,8 +77,31 @@ export class NewWorkRequestPage implements OnInit {
 
   onAssetLocationSelected() {
     this.wrAssetLocation =
-      this.assetLocations.filter(
+      this.allAssetLocations.filter(
         (loc) => loc.ASLOCODE === this.wrAssetLocationCode
+      )[0] || {};
+    this.filterComponents();
+  }
+
+  filterComponents() {
+    if (this.wrAssetLocationCode !== '') {
+      this.assetLocationComponents = this.allComponents.filter(
+        (comp) => comp.COGRCDCLASS === this.wrAssetLocation.ASLOCDCLASS
+      );
+      this.assetLocationComponents.unshift({ COGRCDCOMP: '', COGRDESCR: '' });
+      this.componentComboEnabled = true;
+    } else {
+      this.assetLocationComponents = [];
+      this.componentComboEnabled = false;
+    }
+    this.wrComponentCode = '';
+    this.wrComponent = {};
+  }
+
+  onComponentSelected() {
+    this.wrComponent =
+      this.assetLocationComponents.filter(
+        (comp) => comp.COGRCDCOMP === this.wrComponentCode
       )[0] || {};
   }
 
@@ -124,27 +155,33 @@ export class NewWorkRequestPage implements OnInit {
     this.wrService.getAssetLocationList().subscribe((data) => {
       console.log('Asset Locations: ');
       console.log(data);
-      this.assetLocations = data;
-      this.assetLocations.unshift({ ASLOCODE: '', ASLODESCR: '' });
+      this.allAssetLocations = data;
+      this.allAssetLocations.unshift({ ASLOCODE: '', ASLODESCR: '' });
       this.loadingService.hide();
     });
 
     this.wrService.getComponentsList().subscribe((data) => {
       console.log('Components: ');
       console.log(data);
-      this.components = data;
+      this.allComponents = data;
     });
 
     this.wrService.getProblemsList().subscribe((data) => {
       console.log('Problems: ');
       console.log(data);
-      this.problems = data;
+      this.allProblems = data;
     });
 
     this.wrService.getPersonnelList().subscribe((data) => {
       console.log('Personnel: ');
       console.log(data);
-      this.personnel = data;
+      this.allPersonnel = data;
+    });
+
+    this.wrService.getClassificationsList().subscribe((data) => {
+      console.log('Classifications: ');
+      console.log(data);
+      this.allClassifications = data;
     });
   }
 }

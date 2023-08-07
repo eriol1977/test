@@ -4,6 +4,7 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   AssetLocation,
+  Classification,
   ComponentAsset,
   Personnel,
   Problem,
@@ -38,6 +39,16 @@ export class WorkRequestRestService {
       .pipe(
         map((locArray) => locArray.filter((loc) => loc.ASLOISMAINT === 'Y')), // filters Maintenance asset locations
         catchError(this.handleError<AssetLocation[]>('Get asset locations', []))
+      );
+  }
+
+  getClassificationsList(): Observable<Classification[]> {
+    return this.http
+      .get<Classification[]>(`${this.URL}/4001`, this.httpHeader)
+      .pipe(
+        catchError(
+          this.handleError<Classification[]>('Get classifications', [])
+        )
       );
   }
 

@@ -115,3 +115,20 @@ export interface Personnel {
   UPDATEOFFSET?: string;
   RECORDCOUNTER?: string;
 }
+
+export interface Classification {
+  CLASCODE?: string;
+  CLASDESCR?: string;
+  CLASISASSET?: string;
+  CLASPARENTID?: string;
+  CLASPATH?: string;
+  CLASCDUNIT?: string;
+  CLASCOMPANYID?: string;
+  CLASISITEM?: string;
+  CLASINHERITBY?: string;
+  pTop?: string;
+  CANCELLED?: string;
+  UPDATEDATETIME?: string;
+  UPDATEOFFSET?: string;
+  RECORDCOUNTER?: string;
+}
