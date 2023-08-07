@@ -115,8 +115,8 @@ export class NewWorkRequestPage implements OnInit {
     if (this.wrComponentCode !== '') {
       this.assetLocationComponentProblems = this.allComponentProblems.filter(
         (prob) =>
-          prob.PRCOCDCOMP === this.wrComponentCode &&
-          prob.PRCOCDCLASS === this.wrAssetLocation.ASLOCDCLASS
+          prob.PRCOCDCOMP === this.wrComponent.COGRCDCOMP &&
+          prob.PRCOCDCLASS === this.wrComponent.COGRCDCLASS
       );
 
       // for each asset location Component Problem, adds the corresponding Problem to the componentProblems array
@@ -152,10 +152,11 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   private updateWRDescription(): void {
-    this.wrDescription =
+    this.wrDescription = (
       (this.wrComponent.COGRDESCR || '') +
       ' ' +
-      (this.wrProblem.PROBDESCR || '');
+      (this.wrProblem.PROBDESCR || '')
+    ).trim();
   }
 
   onWRDescriptionChanged(): void {
@@ -186,7 +187,7 @@ export class NewWorkRequestPage implements OnInit {
       ),
       WOREOFSREPO: this.wrTimezone,
       WOREASLOCODE: this.wrAssetLocationCode,
-      WORECLASCODE: 'HQS0000100', // Classifications are needed! load with web service and store locally
+      WORECLASCODE: this.wrAssetLocation.ASLOCDCLASS,
       WORECOGRCODE: this.wrComponentCode,
       WOREPROBCODE: this.wrProblemCode,
       WORENUMBER: '', // should be empty, created by Asset
@@ -204,6 +205,7 @@ export class NewWorkRequestPage implements OnInit {
     this.wrService.addWorkRequest(workRequest).subscribe((data) => {
       this.loadingService.hide();
       this.toastService.showSuccess('Work Request added');
+      this.clearForm();
     });
   }
 
@@ -217,6 +219,28 @@ export class NewWorkRequestPage implements OnInit {
     }
     return result;
   };
+
+  private clearForm() {
+    this.wrDate = moment().format('YYYY-MM-DD HH:mm');
+    this.wrTimezone = `${moment().utcOffset()}`;
+    this.wrStatus = Status.DRAFT;
+    this.wrAssetLocationCode = '';
+    this.wrAssetLocation = {};
+    this.wrComponentCode = '';
+    this.wrComponent = {};
+    this.assetLocationComponents = [];
+    this.componentComboEnabled = false;
+    this.wrProblemCode = '';
+    this.wrProblem = {};
+    this.assetLocationComponentProblems = [];
+    this.componentProblems = [];
+    this.problemsComboEnabled = false;
+    this.wrReportedByCode = '';
+    this.wrReportedBy = {};
+    this.wrDescription = '';
+    this.wrNotes = '';
+    this.wrIsRepGuest = 'N';
+  }
 
   ngOnInit() {
     this.loadingService.show({
@@ -253,6 +277,7 @@ export class NewWorkRequestPage implements OnInit {
       console.log('Personnel: ');
       console.log(data);
       this.allPersonnel = data;
+      this.allPersonnel.unshift({ PERSONID: '', PERSONNAME: '' });
     });
 
     this.wrService.getClassificationsList().subscribe((data) => {

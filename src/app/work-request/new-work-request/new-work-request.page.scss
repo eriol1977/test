@@ -26,3 +26,12 @@ ion-menu-button {
 #container a {
   text-decoration: none;
 }
+
+.ng-invalid:not(form) {
+  border-bottom: 2px solid #a94442; /* red */
+}
+
+.validation-msg {
+  color: #a94442;
+  font-size: small;
+}

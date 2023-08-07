@@ -9,256 +9,299 @@
 
 <ion-content [fullscreen]="true">
   <div id="container">
-    <ion-grid>
-      <!-- Date and GMT -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-input
-              label="DATE"
-              [(ngModel)]="wrDate"
-              labelPlacement="stacked"
-              type="datetime"
-              id="open_cal"
-            ></ion-input>
-            <ion-modal
-              trigger="open_cal"
-              [keepContentsMounted]="true"
-              [initialBreakpoint]="0.8"
-            >
-              <ng-template>
-                <ion-datetime
-                  presentation="date-time"
-                  [(ngModel)]="wrDateModal"
-                  mode="md"
-                  [ngModelOptions]="{standalone: true}"
-                  [showDefaultButtons]="true"
-                ></ion-datetime>
-              </ng-template>
-            </ion-modal>
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <ion-item>
-            <ion-select
-              label="GMT"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrTimezone"
-            >
-              <ion-select-option
-                *ngFor="let option of timezones"
-                value="{{option.value}}"
-                >{{option.label}}</ion-select-option
+    <form #wrForm="ngForm" (ngSubmit)="addWorkRequest()">
+      <ion-grid>
+        <!-- Date and GMT -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-input
+                name="date"
+                required
+                label="DATE"
+                [(ngModel)]="wrDate"
+                labelPlacement="stacked"
+                type="datetime"
+                id="open_cal"
+                disabled="true"
+              ></ion-input>
+              <ion-modal
+                trigger="SHOULD_BE_open_cal"
+                [keepContentsMounted]="true"
+                [initialBreakpoint]="0.8"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <!-- Status -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-select
-              label="STATUS"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrStatus"
-            >
-              <ion-select-option
-                *ngFor="let option of statuses"
-                value="{{option.value}}"
-                >{{option.label}}</ion-select-option
+                <ng-template>
+                  <ion-datetime
+                    presentation="date-time"
+                    [(ngModel)]="wrDateModal"
+                    mode="md"
+                    [ngModelOptions]="{standalone: true}"
+                    [showDefaultButtons]="true"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-select
+                name="gmt"
+                required
+                label="GMT"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrTimezone"
+                disabled="true"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
+                <ion-select-option
+                  *ngFor="let option of timezones"
+                  value="{{option.value}}"
+                  >{{option.label}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-      <!-- Asset Location -->
-      <ion-row>
-        <ion-col size="10">
-          <ion-item>
-            <ion-select
-              label="ASSET LOCATION"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrAssetLocationCode"
-              (ionChange)="onAssetLocationSelected()"
-            >
-              <ion-select-option
-                *ngFor="let loc of allAssetLocations"
-                value="{{loc.ASLOCODE}}"
-                >{{loc.ASLODESCR}}</ion-select-option
+        <!-- Status -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-select
+                name="status"
+                required
+                label="STATUS"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrStatus"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-        <ion-col size="2">
-          <ion-button
-            id="locationPath"
-            color="light"
-            size="small"
-            class="ion-margin-top"
-            [disabled]="!wrAssetLocationCode"
-          >
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-alert
-            trigger="locationPath"
-            header="Asset Location Path"
-            subHeader="{{wrAssetLocation.ASLODESCR}}"
-            message="{{wrAssetLocation.ASLOIDPATH}}"
-          ></ion-alert
-        ></ion-col>
-      </ion-row>
+                <ion-select-option
+                  *ngFor="let option of statuses"
+                  value="{{option.value}}"
+                  >{{option.label}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-      <!-- Component -->
-      <ion-row>
-        <ion-col size="10">
-          <ion-item>
-            <ion-select
-              label="COMPONENT"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrComponentCode"
-              (ionChange)="onComponentSelected()"
-              [disabled]="!componentComboEnabled"
-            >
-              <ion-select-option
-                *ngFor="let comp of assetLocationComponents"
-                value="{{comp.COGRCDCOMP}}"
-                >{{comp.COGRDESCR}}</ion-select-option
+        <!-- Asset Location -->
+        <ion-row>
+          <ion-col size="10">
+            <ion-item>
+              <ion-select
+                name="location"
+                #location="ngModel"
+                required
+                label="ASSET LOCATION"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrAssetLocationCode"
+                (ionChange)="onAssetLocationSelected()"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-        <ion-col size="2">
-          <ion-button
-            id="componentPath"
-            color="light"
-            size="small"
-            class="ion-margin-top"
-            [disabled]="!wrComponentCode"
-          >
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-alert
-            trigger="componentPath"
-            header="Component Path"
-            subHeader="{{wrComponent.COGRDESCR}}"
-            message="{{wrComponent.COGRCDPATH}}"
-          ></ion-alert
-        ></ion-col>
-      </ion-row>
-
-      <!-- Problem -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-select
-              label="PROBLEM"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrProblemCode"
-              (ionChange)="onProblemSelected()"
-              [disabled]="!problemsComboEnabled"
+                <ion-select-option
+                  *ngFor="let loc of allAssetLocations"
+                  value="{{loc.ASLOCODE}}"
+                  >{{loc.ASLODESCR}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+            <ion-label
+              *ngIf="location.invalid && !location.pristine"
+              class="validation-msg"
+              >Required field</ion-label
             >
-              <ion-select-option
-                *ngFor="let prob of componentProblems"
-                value="{{prob.PROBCODE}}"
-                >{{prob.PROBDESCR}}</ion-select-option
+          </ion-col>
+          <ion-col size="2">
+            <ion-button
+              id="locationPath"
+              color="light"
+              size="small"
+              class="ion-margin-top"
+              [disabled]="!wrAssetLocationCode"
+            >
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-alert
+              trigger="locationPath"
+              header="Asset Location Path"
+              subHeader="{{wrAssetLocation.ASLODESCR}}"
+              message="{{wrAssetLocation.ASLOIDPATH}}"
+            ></ion-alert
+          ></ion-col>
+        </ion-row>
+
+        <!-- Component -->
+        <ion-row>
+          <ion-col size="10">
+            <ion-item>
+              <ion-select
+                name="component"
+                #component="ngModel"
+                required
+                label="COMPONENT"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrComponentCode"
+                (ionChange)="onComponentSelected()"
+                [disabled]="!componentComboEnabled"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <!-- Reported By -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-select
-              label="REPORTED BY"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrReportedByCode"
-              (ionChange)="onReportedBySelected()"
+                <ion-select-option
+                  *ngFor="let comp of assetLocationComponents"
+                  value="{{comp.COGRCDCOMP}}"
+                  >{{comp.COGRDESCR}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+            <ion-label
+              *ngIf="component.invalid && !component.pristine"
+              class="validation-msg"
+              >Required field</ion-label
             >
-              <ion-select-option
-                *ngFor="let pers of allPersonnel"
-                value="{{pers.PERSONID}}"
-                >{{pers.PERSONNAME}}</ion-select-option
+          </ion-col>
+          <ion-col size="2">
+            <ion-button
+              id="componentPath"
+              color="light"
+              size="small"
+              class="ion-margin-top"
+              [disabled]="!wrComponentCode"
+            >
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-alert
+              trigger="componentPath"
+              header="Component Path"
+              subHeader="{{wrComponent.COGRDESCR}}"
+              message="{{wrComponent.COGRCDPATH}}"
+            ></ion-alert
+          ></ion-col>
+        </ion-row>
+
+        <!-- Problem -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-select
+                name="problem"
+                #problem="ngModel"
+                required
+                label="PROBLEM"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrProblemCode"
+                (ionChange)="onProblemSelected()"
+                [disabled]="!problemsComboEnabled"
               >
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <!-- WR Description -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-textarea
-              label="WR DESCRIPTION"
-              labelPlacement="stacked"
-              [autoGrow]="true"
-              maxlength="120"
-              [(ngModel)]="wrDescription"
-              (ionChange)="onWRDescriptionChanged()"
+                <ion-select-option
+                  *ngFor="let prob of componentProblems"
+                  value="{{prob.PROBCODE}}"
+                  >{{prob.PROBDESCR}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+            <ion-label
+              *ngIf="problem.invalid && !problem.pristine"
+              class="validation-msg"
+              >Required field</ion-label
             >
-            </ion-textarea>
-          </ion-item>
-        </ion-col>
-      </ion-row>
+          </ion-col>
+        </ion-row>
 
-      <!-- WR Notes -->
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-textarea
-              label="WR NOTES"
-              labelPlacement="stacked"
-              [autoGrow]="true"
-              [(ngModel)]="wrNotes"
-              (ionChange)="onWRNotesChanged()"
+        <!-- Reported By -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-select
+                name="reported"
+                label="REPORTED BY"
+                labelPlacement="stacked"
+                interface="action-sheet"
+                [(ngModel)]="wrReportedByCode"
+                (ionChange)="onReportedBySelected()"
+              >
+                <ion-select-option
+                  *ngFor="let pers of allPersonnel"
+                  value="{{pers.PERSONID}}"
+                  >{{pers.PERSONNAME}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <!-- WR Description -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-textarea
+                name="description"
+                #description="ngModel"
+                required
+                label="WR DESCRIPTION"
+                labelPlacement="stacked"
+                maxlength="120"
+                [(ngModel)]="wrDescription"
+                (ionChange)="onWRDescriptionChanged()"
+              >
+              </ion-textarea>
+            </ion-item>
+            <ion-label
+              *ngIf="description.invalid && !description.pristine"
+              class="validation-msg"
+              >Required field</ion-label
             >
-            </ion-textarea>
-          </ion-item>
-        </ion-col>
-      </ion-row>
+          </ion-col>
+        </ion-row>
 
-      <!-- Reported by Guest -->
-      <ion-row>
-        <ion-col>
-          <ion-item lines="none">
-            <ion-label position="stacked">REPORTED BY GUEST</ion-label>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-radio-group [(ngModel)]="wrIsRepGuest">
-              <ion-radio value="Y" justify="end">Yes</ion-radio><br />
-              <ion-radio value="N" justify="end">No</ion-radio><br />
-            </ion-radio-group>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        <!-- WR Notes -->
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-textarea
+                name="notes"
+                label="WR NOTES"
+                labelPlacement="stacked"
+                [autoGrow]="true"
+                [(ngModel)]="wrNotes"
+                (ionChange)="onWRNotesChanged()"
+              >
+              </ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <!-- Reported by Guest -->
+        <ion-row>
+          <ion-col>
+            <ion-item lines="none">
+              <ion-label position="stacked">REPORTED BY GUEST</ion-label>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-radio-group [(ngModel)]="wrIsRepGuest" name="repByGuest">
+                <ion-radio value="Y" justify="end">Yes</ion-radio><br />
+                <ion-radio value="N" justify="end">No</ion-radio><br />
+              </ion-radio-group>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
   </div>
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button>
+    <ion-fab-button type="submit" [disabled]="!wrForm.form.valid">
       <ion-icon name="add" (click)="addWorkRequest()"></ion-icon>
     </ion-fab-button>
   </ion-fab>
