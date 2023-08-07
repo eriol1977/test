@@ -92,10 +92,27 @@ export interface ComponentAsset {
   RECORDCOUNTER?: string;
 }
 
-export interface Problem {
+export interface ComponentProblem {
   PRCOCDCOMP?: string;
   PRCOCDCLASS?: string;
   PRCOCDPROBLEM?: string;
+  pTop?: string;
+  CANCELLED?: string;
+  UPDATEDATETIME?: string;
+  UPDATEOFFSET?: string;
+  RECORDCOUNTER?: string;
+}
+
+export interface Problem {
+  PROBCODE?: string;
+  PROBDESCR?: string;
+  PROBDESCR2?: string;
+  PROBCDACTIVITY?: string;
+  PROBCDCATE?: string;
+  PROBISSYMPTOM?: string;
+  PROBISFAILMODE?: string;
+  PROBCDUNIT?: string;
+  PROBCOMPANYID?: string;
   pTop?: string;
   CANCELLED?: string;
   UPDATEDATETIME?: string;

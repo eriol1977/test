@@ -7,8 +7,9 @@ import {
   Classification,
   ComponentAsset,
   Personnel,
-  Problem,
+  ComponentProblem,
   WorkRequest,
+  Problem,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -60,9 +61,19 @@ export class WorkRequestRestService {
       );
   }
 
+  getComponentProblemsList(): Observable<ComponentProblem[]> {
+    return this.http
+      .get<ComponentProblem[]>(`${this.URL}/4005`, this.httpHeader)
+      .pipe(
+        catchError(
+          this.handleError<ComponentProblem[]>('Get component problems', [])
+        )
+      );
+  }
+
   getProblemsList(): Observable<Problem[]> {
     return this.http
-      .get<Problem[]>(`${this.URL}/4005`, this.httpHeader)
+      .get<Problem[]>(`${this.URL}/4004`, this.httpHeader)
       .pipe(catchError(this.handleError<Problem[]>('Get problems', [])));
   }
 

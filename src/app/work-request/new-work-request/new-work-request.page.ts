@@ -6,12 +6,13 @@ import {
   Classification,
   ComponentAsset,
   Personnel,
-  Problem,
+  ComponentProblem,
   SelectOption,
   Status,
   STATUSES,
   TIMEZONES,
   WorkRequest,
+  Problem,
 } from '../../common/models';
 import { WorkRequestRestService } from '../../core';
 import { ToastService } from '../../core/services/toast.service';
@@ -57,6 +58,8 @@ export class NewWorkRequestPage implements OnInit {
 
   wrProblemCode: string = '';
   wrProblem: Problem = {};
+  allComponentProblems: ComponentProblem[] = [];
+  assetLocationComponentProblems: ComponentProblem[] = [];
   allProblems: Problem[] = [];
   componentProblems: Problem[] = [];
   problemsComboEnabled: boolean = false;
@@ -111,12 +114,22 @@ export class NewWorkRequestPage implements OnInit {
 
   filterProblems(): void {
     if (this.wrComponentCode !== '') {
-      this.componentProblems = this.allProblems.filter(
+      this.assetLocationComponentProblems = this.allComponentProblems.filter(
         (prob) =>
           prob.PRCOCDCOMP === this.wrComponentCode &&
           prob.PRCOCDCLASS === this.wrAssetLocation.ASLOCDCLASS
       );
-      this.componentProblems.unshift({ PRCOCDPROBLEM: '' });
+
+      // for each asset location Component Problem, adds the corresponding Problem to the componentProblems array
+      this.componentProblems = [];
+      this.assetLocationComponentProblems.forEach((compProb) => {
+        this.componentProblems.push(
+          this.allProblems.find(
+            (prob) => prob.PROBCODE === compProb.PRCOCDPROBLEM
+          ) || {}
+        );
+      });
+      this.componentProblems.unshift({ PROBCODE: '', PROBDESCR: '' });
       this.problemsComboEnabled = true;
     } else {
       this.componentProblems = [];
@@ -129,9 +142,9 @@ export class NewWorkRequestPage implements OnInit {
   onProblemSelected(): void {
     this.wrProblem =
       this.componentProblems.filter(
-        (prob) => prob.PRCOCDPROBLEM === this.wrProblemCode
+        (prob) => prob.PROBCODE === this.wrProblemCode
       )[0] || {};
-    console.log(this.wrProblem.PRCOCDPROBLEM);
+    console.log(this.wrProblem.PROBDESCR);
   }
 
   addWorkRequest(): void {
@@ -193,6 +206,12 @@ export class NewWorkRequestPage implements OnInit {
       console.log('Components: ');
       console.log(data);
       this.allComponents = data;
+    });
+
+    this.wrService.getComponentProblemsList().subscribe((data) => {
+      console.log('Component Problems: ');
+      console.log(data);
+      this.allComponentProblems = data;
     });
 
     this.wrService.getProblemsList().subscribe((data) => {
