@@ -1,5 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import {
   AssetLocation,
@@ -17,6 +16,8 @@ import {
 import { WorkRequestRestService } from '../../core';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
+import { ModalController } from '@ionic/angular';
+import { SearchListComponent } from 'src/app/search-list/search-list.component';
 
 @Component({
   selector: 'new-work-request',
@@ -24,8 +25,6 @@ import { LoaderService } from '../../core/services/loader.service';
   styleUrls: ['./new-work-request.page.scss'],
 })
 export class NewWorkRequestPage implements OnInit {
-  private activatedRoute = inject(ActivatedRoute);
-
   wrDate: string = moment().format('YYYY-MM-DD HH:mm');
   get wrDateModal(): string {
     return moment(this.wrDate, 'YYYY-MM-DD HH:mm').format(
@@ -47,6 +46,7 @@ export class NewWorkRequestPage implements OnInit {
   wrAssetLocationCode: string = '';
   wrAssetLocation: AssetLocation = {};
   allAssetLocations: AssetLocation[] = [];
+  assetLocationOptions: SelectOption[] = [];
 
   allClassifications: Classification[] = [];
 
@@ -54,6 +54,7 @@ export class NewWorkRequestPage implements OnInit {
   wrComponent: ComponentAsset = {};
   allComponents: ComponentAsset[] = [];
   assetLocationComponents: ComponentAsset[] = [];
+  componentsOptions: SelectOption[] = [];
   componentComboEnabled: boolean = false;
 
   wrProblemCode: string = '';
@@ -75,7 +76,8 @@ export class NewWorkRequestPage implements OnInit {
   constructor(
     private wrService: WorkRequestRestService,
     private loadingService: LoaderService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private modalCtrl: ModalController
   ) {}
 
   onAssetLocationSelected(): void {
@@ -93,10 +95,13 @@ export class NewWorkRequestPage implements OnInit {
       this.assetLocationComponents = this.allComponents.filter(
         (comp) => comp.COGRCDCLASS === this.wrAssetLocation.ASLOCDCLASS
       );
-      this.assetLocationComponents.unshift({ COGRCDCOMP: '', COGRDESCR: '' });
+      this.componentsOptions = this.assetLocationComponents.map((comp) => {
+        return { value: comp.COGRCDCOMP || '', label: comp.COGRDESCR || '' };
+      });
       this.componentComboEnabled = true;
     } else {
       this.assetLocationComponents = [];
+      this.componentsOptions = [];
       this.componentComboEnabled = false;
     }
     this.wrComponentCode = '';
@@ -104,9 +109,10 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   onComponentSelected(): void {
-    this.wrComponent = this.assetLocationComponents.filter(
-      (comp) => comp.COGRCDCOMP === this.wrComponentCode
-    )[0];
+    this.wrComponent =
+      this.assetLocationComponents.filter(
+        (comp) => comp.COGRCDCOMP === this.wrComponentCode
+      )[0] || {};
     this.filterProblems();
     this.updateWRDescription();
   }
@@ -139,16 +145,18 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   onProblemSelected(): void {
-    this.wrProblem = this.componentProblems.filter(
-      (prob) => prob.PROBCODE === this.wrProblemCode
-    )[0];
+    this.wrProblem =
+      this.componentProblems.filter(
+        (prob) => prob.PROBCODE === this.wrProblemCode
+      )[0] || {};
     this.updateWRDescription();
   }
 
   onReportedBySelected(): void {
-    this.wrReportedBy = this.allPersonnel.filter(
-      (pers) => pers.PERSONID === this.wrReportedByCode
-    )[0];
+    this.wrReportedBy =
+      this.allPersonnel.filter(
+        (pers) => pers.PERSONID === this.wrReportedByCode
+      )[0] || {};
   }
 
   private updateWRDescription(): void {
@@ -251,7 +259,9 @@ export class NewWorkRequestPage implements OnInit {
       console.log('Asset Locations: ');
       console.log(data);
       this.allAssetLocations = data;
-      this.allAssetLocations.unshift({ ASLOCODE: '', ASLODESCR: '' });
+      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
+        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+      });
       this.loadingService.hide();
     });
 
@@ -285,5 +295,53 @@ export class NewWorkRequestPage implements OnInit {
       console.log(data);
       this.allClassifications = data;
     });
+  }
+
+  async selectAssetLocation() {
+    this.loadingService.show({
+      message: 'Loading list...',
+    });
+    const modal = await this.modalCtrl.create({
+      component: SearchListComponent,
+      componentProps: {
+        title: 'Asset Locations',
+        options: this.assetLocationOptions,
+      },
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+    if (role === 'confirm') {
+      this.wrAssetLocationCode = data;
+      this.onAssetLocationSelected();
+    } else if (role === 'clear') {
+      this.wrAssetLocationCode = '';
+      this.onAssetLocationSelected();
+    }
+  }
+
+  async selectComponent() {
+    if (this.componentComboEnabled) {
+      this.loadingService.show({
+        message: 'Loading list...',
+      });
+      const modal = await this.modalCtrl.create({
+        component: SearchListComponent,
+        componentProps: {
+          title: 'Components',
+          options: this.componentsOptions,
+        },
+      });
+      modal.present();
+
+      const { data, role } = await modal.onWillDismiss();
+      if (role === 'confirm') {
+        this.wrComponentCode = data;
+        this.onComponentSelected();
+      } else if (role === 'clear') {
+        this.wrComponentCode = '';
+        this.onComponentSelected();
+      }
+    }
   }
 }

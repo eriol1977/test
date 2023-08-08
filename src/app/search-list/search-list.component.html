@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-toolbar color="light">
+          <ion-buttons slot="start">
+            <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
+          </ion-buttons>
+          <ion-title>{{ title }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button color="medium" (click)="clear()">Clear</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-searchbar
+          [(ngModel)]="filterText"
+          (ionInput)="applyFilter()"
+          debounce="100"
+        ></ion-searchbar>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let option of filteredOptions">
+      <ion-label (click)="confirm(option.value)">{{ option.label }}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

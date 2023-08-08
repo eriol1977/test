@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { NewWorkRequestPageRoutingModule } from './new-work-request-routing.module';
 
 import { NewWorkRequestPage } from './new-work-request.page';
+import { SearchListModule } from 'src/app/search-list/search-list.module';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { NewWorkRequestPage } from './new-work-request.page';
     FormsModule,
     IonicModule,
     NewWorkRequestPageRoutingModule,
+    SearchListModule,
   ],
   declarations: [NewWorkRequestPage],
 })
