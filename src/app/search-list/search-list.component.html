@@ -22,16 +22,21 @@
         <ion-searchbar
           [(ngModel)]="filterText"
           (ionInput)="applyFilter()"
-          debounce="100"
+          debounce="300"
         ></ion-searchbar>
       </ion-col>
     </ion-row>
   </ion-grid>
 </ion-header>
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" role="feed">
   <ion-list>
-    <ion-item *ngFor="let option of filteredOptions">
+    <ion-item *ngFor="let option of visibleOptions" role="article">
       <ion-label (click)="confirm(option.value)">{{ option.label }}</ion-label>
     </ion-item>
   </ion-list>
+  <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+    ></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>

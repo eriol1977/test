@@ -96,6 +96,7 @@
               labelPlacement="stacked"
               [(ngModel)]="wrAssetLocation.ASLODESCR"
               (click)="selectAssetLocation()"
+              readonly="true"
             >
             </ion-input>
           </ion-item>
@@ -136,6 +137,7 @@
               [disabled]="!componentComboEnabled"
               [(ngModel)]="wrComponent.COGRDESCR"
               (click)="selectComponent()"
+              readonly="true"
             >
             </ion-input>
           </ion-item>
@@ -176,6 +178,7 @@
               [disabled]="!problemsComboEnabled"
               [(ngModel)]="wrProblem.PROBDESCR"
               (click)="selectProblem()"
+              readonly="true"
             >
             </ion-input>
           </ion-item>
@@ -193,6 +196,7 @@
               labelPlacement="stacked"
               [(ngModel)]="wrReportedBy.PERSONNAME"
               (click)="selectReportedBy()"
+              readonly="true"
             >
             </ion-input>
           </ion-item>
