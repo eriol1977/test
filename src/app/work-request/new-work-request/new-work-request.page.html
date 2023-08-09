@@ -167,29 +167,18 @@
       <ion-row>
         <ion-col>
           <ion-item>
-            <ion-select
+            <ion-input
+              type="text"
               name="problem"
-              #problem="ngModel"
               required
               label="PROBLEM"
               labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrProblemCode"
-              (ionChange)="onProblemSelected()"
               [disabled]="!problemsComboEnabled"
+              [(ngModel)]="wrProblem.PROBDESCR"
+              (click)="selectProblem()"
             >
-              <ion-select-option
-                *ngFor="let prob of componentProblems"
-                value="{{prob.PROBCODE}}"
-                >{{prob.PROBDESCR}}</ion-select-option
-              >
-            </ion-select>
+            </ion-input>
           </ion-item>
-          <ion-label
-            *ngIf="problem.invalid && !problem.pristine"
-            class="validation-msg"
-            >Required field</ion-label
-          >
         </ion-col>
       </ion-row>
 
@@ -197,20 +186,15 @@
       <ion-row>
         <ion-col>
           <ion-item>
-            <ion-select
+            <ion-input
+              type="text"
               name="reported"
               label="REPORTED BY"
               labelPlacement="stacked"
-              interface="action-sheet"
-              [(ngModel)]="wrReportedByCode"
-              (ionChange)="onReportedBySelected()"
+              [(ngModel)]="wrReportedBy.PERSONNAME"
+              (click)="selectReportedBy()"
             >
-              <ion-select-option
-                *ngFor="let pers of allPersonnel"
-                value="{{pers.PERSONID}}"
-                >{{pers.PERSONNAME}}</ion-select-option
-              >
-            </ion-select>
+            </ion-input>
           </ion-item>
         </ion-col>
       </ion-row>

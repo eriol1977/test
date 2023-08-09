@@ -20,6 +20,7 @@ export class SearchListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.title = this.title.toUpperCase();
     this.filteredOptions = this.options;
   }
 

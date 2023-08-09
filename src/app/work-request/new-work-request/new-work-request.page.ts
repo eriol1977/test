@@ -63,11 +63,13 @@ export class NewWorkRequestPage implements OnInit {
   assetLocationComponentProblems: ComponentProblem[] = [];
   allProblems: Problem[] = [];
   componentProblems: Problem[] = [];
+  problemsOptions: SelectOption[] = [];
   problemsComboEnabled: boolean = false;
 
   wrReportedByCode: string = '';
   wrReportedBy: Personnel = {};
   allPersonnel: Personnel[] = [];
+  reportedByOptions: SelectOption[] = [];
 
   wrDescription: string = '';
   wrNotes: string = '';
@@ -123,7 +125,9 @@ export class NewWorkRequestPage implements OnInit {
       console.log('Personnel: ');
       console.log(data);
       this.allPersonnel = data;
-      this.allPersonnel.unshift({ PERSONID: '', PERSONNAME: '' });
+      this.reportedByOptions = this.allPersonnel.map((pers) => {
+        return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
+      });
     });
 
     this.wrService.getClassificationsList().subscribe((data) => {
@@ -148,6 +152,7 @@ export class NewWorkRequestPage implements OnInit {
     this.wrProblem = {};
     this.assetLocationComponentProblems = [];
     this.componentProblems = [];
+    this.problemsOptions = [];
     this.problemsComboEnabled = false;
     this.wrReportedByCode = '';
     this.wrReportedBy = {};
@@ -206,12 +211,14 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   selectComponent(): void {
-    this.searchListService.openSearchList(
-      'Components',
-      this.componentsOptions,
-      this.confirmComponent.bind(this),
-      this.clearComponent.bind(this)
-    );
+    if (this.componentComboEnabled) {
+      this.searchListService.openSearchList(
+        'Components',
+        this.componentsOptions,
+        this.confirmComponent.bind(this),
+        this.clearComponent.bind(this)
+      );
+    }
   }
 
   confirmComponent(code: string): void {
@@ -256,14 +263,39 @@ export class NewWorkRequestPage implements OnInit {
       this.componentProblems.sort((prob1, prob2) =>
         (prob1.PROBDESCR || '') > (prob2.PROBDESCR || '') ? 1 : -1
       );
-      this.componentProblems.unshift({ PROBCODE: '', PROBDESCR: '' });
+      this.problemsOptions = this.componentProblems.map((prob) => {
+        return { value: prob.PROBCODE || '', label: prob.PROBDESCR || '' };
+      });
       this.problemsComboEnabled = true;
     } else {
+      this.assetLocationComponentProblems = [];
       this.componentProblems = [];
+      this.problemsOptions = [];
       this.problemsComboEnabled = false;
     }
     this.wrProblemCode = '';
     this.wrProblem = {};
+  }
+
+  selectProblem(): void {
+    if (this.problemsComboEnabled) {
+      this.searchListService.openSearchList(
+        'Problems',
+        this.problemsOptions,
+        this.confirmProblem.bind(this),
+        this.clearProblem.bind(this)
+      );
+    }
+  }
+
+  confirmProblem(code: string): void {
+    this.wrProblemCode = code;
+    this.onProblemSelected();
+  }
+
+  clearProblem(): void {
+    this.wrProblemCode = '';
+    this.onProblemSelected();
   }
 
   onProblemSelected(): void {
@@ -275,6 +307,25 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   // ---------------------- REPORTED BY ---------------------------------
+
+  selectReportedBy(): void {
+    this.searchListService.openSearchList(
+      'Reported By',
+      this.reportedByOptions,
+      this.confirmReportedBy.bind(this),
+      this.clearReportedBy.bind(this)
+    );
+  }
+
+  confirmReportedBy(code: string): void {
+    this.wrReportedByCode = code;
+    this.onReportedBySelected();
+  }
+
+  clearReportedBy(): void {
+    this.wrReportedByCode = '';
+    this.onReportedBySelected();
+  }
 
   onReportedBySelected(): void {
     this.wrReportedBy =

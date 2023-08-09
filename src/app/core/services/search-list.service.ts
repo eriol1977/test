@@ -25,7 +25,7 @@ export class SearchListService {
     const modal = await this.modalCtrl.create({
       component: SearchListComponent,
       componentProps: {
-        title: 'Asset Locations',
+        title: title,
         options: options,
       },
     });
