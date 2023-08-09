@@ -167,22 +167,13 @@ export class NewWorkRequestPage implements OnInit {
     this.searchListService.openSearchList(
       'Asset Locations',
       this.assetLocationOptions,
-      this.confirmAssetLocation.bind(this),
-      this.clearAssetLocation.bind(this)
+      this.onAssetLocationSelected.bind(this),
+      this.onAssetLocationSelected.bind(this)
     );
   }
 
-  confirmAssetLocation(code: string): void {
-    this.wrAssetLocationCode = code;
-    this.onAssetLocationSelected();
-  }
-
-  clearAssetLocation(): void {
-    this.wrAssetLocationCode = '';
-    this.onAssetLocationSelected();
-  }
-
-  onAssetLocationSelected(): void {
+  onAssetLocationSelected(code?: string): void {
+    this.wrAssetLocationCode = code || '';
     this.wrAssetLocation =
       this.allAssetLocations.find(
         (loc) => loc.ASLOCODE === this.wrAssetLocationCode
@@ -215,23 +206,14 @@ export class NewWorkRequestPage implements OnInit {
       this.searchListService.openSearchList(
         'Components',
         this.componentsOptions,
-        this.confirmComponent.bind(this),
-        this.clearComponent.bind(this)
+        this.onComponentSelected.bind(this),
+        this.onComponentSelected.bind(this)
       );
     }
   }
 
-  confirmComponent(code: string): void {
-    this.wrComponentCode = code;
-    this.onComponentSelected();
-  }
-
-  clearComponent(): void {
-    this.wrComponentCode = '';
-    this.onComponentSelected();
-  }
-
-  onComponentSelected(): void {
+  onComponentSelected(code?: string): void {
+    this.wrComponentCode = code || '';
     this.wrComponent =
       this.allComponents.find(
         (comp) => comp.COGRCDCOMP === this.wrComponentCode
@@ -282,23 +264,14 @@ export class NewWorkRequestPage implements OnInit {
       this.searchListService.openSearchList(
         'Problems',
         this.problemsOptions,
-        this.confirmProblem.bind(this),
-        this.clearProblem.bind(this)
+        this.onProblemSelected.bind(this),
+        this.onProblemSelected.bind(this)
       );
     }
   }
 
-  confirmProblem(code: string): void {
-    this.wrProblemCode = code;
-    this.onProblemSelected();
-  }
-
-  clearProblem(): void {
-    this.wrProblemCode = '';
-    this.onProblemSelected();
-  }
-
-  onProblemSelected(): void {
+  onProblemSelected(code?: string): void {
+    this.wrProblemCode = code || '';
     this.wrProblem =
       this.componentProblems.find(
         (prob) => prob.PROBCODE === this.wrProblemCode
@@ -312,22 +285,13 @@ export class NewWorkRequestPage implements OnInit {
     this.searchListService.openSearchList(
       'Reported By',
       this.reportedByOptions,
-      this.confirmReportedBy.bind(this),
-      this.clearReportedBy.bind(this)
+      this.onReportedBySelected.bind(this),
+      this.onReportedBySelected.bind(this)
     );
   }
 
-  confirmReportedBy(code: string): void {
-    this.wrReportedByCode = code;
-    this.onReportedBySelected();
-  }
-
-  clearReportedBy(): void {
-    this.wrReportedByCode = '';
-    this.onReportedBySelected();
-  }
-
-  onReportedBySelected(): void {
+  onReportedBySelected(code?: string): void {
+    this.wrReportedByCode = code || '';
     this.wrReportedBy =
       this.allPersonnel.find(
         (pers) => pers.PERSONID === this.wrReportedByCode
