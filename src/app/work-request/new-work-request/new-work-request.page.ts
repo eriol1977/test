@@ -16,8 +16,7 @@ import {
 import { WorkRequestRestService } from '../../core';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
-import { ModalController } from '@ionic/angular';
-import { SearchListComponent } from 'src/app/search-list/search-list.component';
+import { SearchListService } from '../../core/services/search-list.service';
 
 @Component({
   selector: 'new-work-request',
@@ -25,6 +24,8 @@ import { SearchListComponent } from 'src/app/search-list/search-list.component';
   styleUrls: ['./new-work-request.page.scss'],
 })
 export class NewWorkRequestPage implements OnInit {
+  // ---------------------- PROPERTIES ---------------------------------
+
   wrDate: string = moment().format('YYYY-MM-DD HH:mm');
   get wrDateModal(): string {
     return moment(this.wrDate, 'YYYY-MM-DD HH:mm').format(
@@ -53,7 +54,6 @@ export class NewWorkRequestPage implements OnInit {
   wrComponentCode: string = '';
   wrComponent: ComponentAsset = {};
   allComponents: ComponentAsset[] = [];
-  assetLocationComponents: ComponentAsset[] = [];
   componentsOptions: SelectOption[] = [];
   componentComboEnabled: boolean = false;
 
@@ -77,30 +77,127 @@ export class NewWorkRequestPage implements OnInit {
     private wrService: WorkRequestRestService,
     private loadingService: LoaderService,
     private toastService: ToastService,
-    private modalCtrl: ModalController
+    private searchListService: SearchListService
   ) {}
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  // ---------------------- GLOBAL STUFF ---------------------------------
+
+  private loadData(): void {
+    this.loadingService.show({
+      message: 'Loading...',
+    });
+
+    this.wrService.getAssetLocationList().subscribe((data) => {
+      console.log('Asset Locations: ');
+      console.log(data);
+      this.allAssetLocations = data;
+      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
+        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+      });
+      this.loadingService.hide();
+    });
+
+    this.wrService.getComponentsList().subscribe((data) => {
+      console.log('Components: ');
+      console.log(data);
+      this.allComponents = data;
+    });
+
+    this.wrService.getComponentProblemsList().subscribe((data) => {
+      console.log('Component Problems: ');
+      console.log(data);
+      this.allComponentProblems = data;
+    });
+
+    this.wrService.getProblemsList().subscribe((data) => {
+      console.log('Problems: ');
+      console.log(data);
+      this.allProblems = data;
+    });
+
+    this.wrService.getPersonnelList().subscribe((data) => {
+      console.log('Personnel: ');
+      console.log(data);
+      this.allPersonnel = data;
+      this.allPersonnel.unshift({ PERSONID: '', PERSONNAME: '' });
+    });
+
+    this.wrService.getClassificationsList().subscribe((data) => {
+      console.log('Classifications: ');
+      console.log(data);
+      this.allClassifications = data;
+    });
+  }
+
+  private clearForm() {
+    this.wrDate = moment().format('YYYY-MM-DD HH:mm');
+    this.wrTimezone = `${moment().utcOffset()}`;
+    this.wrStatus = Status.DRAFT;
+    this.wrAssetLocationCode = '';
+    this.wrAssetLocation = {};
+    this.assetLocationOptions = [];
+    this.wrComponentCode = '';
+    this.wrComponent = {};
+    this.componentsOptions = [];
+    this.componentComboEnabled = false;
+    this.wrProblemCode = '';
+    this.wrProblem = {};
+    this.assetLocationComponentProblems = [];
+    this.componentProblems = [];
+    this.problemsComboEnabled = false;
+    this.wrReportedByCode = '';
+    this.wrReportedBy = {};
+    this.wrDescription = '';
+    this.wrNotes = '';
+    this.wrIsRepGuest = 'N';
+  }
+
+  // ---------------------- ASSET LOCATIONS ---------------------------------
+
+  selectAssetLocation(): void {
+    this.searchListService.openSearchList(
+      'Asset Locations',
+      this.assetLocationOptions,
+      this.confirmAssetLocation.bind(this),
+      this.clearAssetLocation.bind(this)
+    );
+  }
+
+  confirmAssetLocation(code: string): void {
+    this.wrAssetLocationCode = code;
+    this.onAssetLocationSelected();
+  }
+
+  clearAssetLocation(): void {
+    this.wrAssetLocationCode = '';
+    this.onAssetLocationSelected();
+  }
 
   onAssetLocationSelected(): void {
     this.wrAssetLocation =
-      this.allAssetLocations.filter(
+      this.allAssetLocations.find(
         (loc) => loc.ASLOCODE === this.wrAssetLocationCode
-      )[0] || {};
+      ) || {};
     this.filterComponents();
     this.filterProblems();
     this.updateWRDescription();
   }
 
+  // ---------------------- COMPONENTS ---------------------------------
+
   filterComponents(): void {
     if (this.wrAssetLocationCode !== '') {
-      this.assetLocationComponents = this.allComponents.filter(
-        (comp) => comp.COGRCDCLASS === this.wrAssetLocation.ASLOCDCLASS
-      );
-      this.componentsOptions = this.assetLocationComponents.map((comp) => {
-        return { value: comp.COGRCDCOMP || '', label: comp.COGRDESCR || '' };
-      });
+      this.componentsOptions = this.allComponents
+        .filter((comp) => comp.COGRCDCLASS === this.wrAssetLocation.ASLOCDCLASS)
+        .map((comp) => {
+          return { value: comp.COGRCDCOMP || '', label: comp.COGRDESCR || '' };
+        });
       this.componentComboEnabled = true;
     } else {
-      this.assetLocationComponents = [];
       this.componentsOptions = [];
       this.componentComboEnabled = false;
     }
@@ -108,14 +205,35 @@ export class NewWorkRequestPage implements OnInit {
     this.wrComponent = {};
   }
 
+  selectComponent(): void {
+    this.searchListService.openSearchList(
+      'Components',
+      this.componentsOptions,
+      this.confirmComponent.bind(this),
+      this.clearComponent.bind(this)
+    );
+  }
+
+  confirmComponent(code: string): void {
+    this.wrComponentCode = code;
+    this.onComponentSelected();
+  }
+
+  clearComponent(): void {
+    this.wrComponentCode = '';
+    this.onComponentSelected();
+  }
+
   onComponentSelected(): void {
     this.wrComponent =
-      this.assetLocationComponents.filter(
+      this.allComponents.find(
         (comp) => comp.COGRCDCOMP === this.wrComponentCode
-      )[0] || {};
+      ) || {};
     this.filterProblems();
     this.updateWRDescription();
   }
+
+  // ---------------------- PROBLEMS ---------------------------------
 
   filterProblems(): void {
     if (this.wrComponentCode !== '') {
@@ -150,18 +268,22 @@ export class NewWorkRequestPage implements OnInit {
 
   onProblemSelected(): void {
     this.wrProblem =
-      this.componentProblems.filter(
+      this.componentProblems.find(
         (prob) => prob.PROBCODE === this.wrProblemCode
-      )[0] || {};
+      ) || {};
     this.updateWRDescription();
   }
 
+  // ---------------------- REPORTED BY ---------------------------------
+
   onReportedBySelected(): void {
     this.wrReportedBy =
-      this.allPersonnel.filter(
+      this.allPersonnel.find(
         (pers) => pers.PERSONID === this.wrReportedByCode
-      )[0] || {};
+      ) || {};
   }
+
+  // ---------------------- DESCRIPTION ---------------------------------
 
   private updateWRDescription(): void {
     this.wrDescription = (
@@ -175,9 +297,13 @@ export class NewWorkRequestPage implements OnInit {
     // TODO: remove special characters
   }
 
+  // ---------------------- NOTES ---------------------------------
+
   onWRNotesChanged(): void {
     // TODO: remove special characters
   }
+
+  // ---------------------- WORK REQUEST ---------------------------------
 
   addWorkRequest(): void {
     this.loadingService.show({
@@ -231,121 +357,4 @@ export class NewWorkRequestPage implements OnInit {
     }
     return result;
   };
-
-  private clearForm() {
-    this.wrDate = moment().format('YYYY-MM-DD HH:mm');
-    this.wrTimezone = `${moment().utcOffset()}`;
-    this.wrStatus = Status.DRAFT;
-    this.wrAssetLocationCode = '';
-    this.wrAssetLocation = {};
-    this.wrComponentCode = '';
-    this.wrComponent = {};
-    this.assetLocationComponents = [];
-    this.componentComboEnabled = false;
-    this.wrProblemCode = '';
-    this.wrProblem = {};
-    this.assetLocationComponentProblems = [];
-    this.componentProblems = [];
-    this.problemsComboEnabled = false;
-    this.wrReportedByCode = '';
-    this.wrReportedBy = {};
-    this.wrDescription = '';
-    this.wrNotes = '';
-    this.wrIsRepGuest = 'N';
-  }
-
-  ngOnInit() {
-    this.loadingService.show({
-      message: 'Loading...',
-    });
-
-    this.wrService.getAssetLocationList().subscribe((data) => {
-      console.log('Asset Locations: ');
-      console.log(data);
-      this.allAssetLocations = data;
-      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
-        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
-      });
-      this.loadingService.hide();
-    });
-
-    this.wrService.getComponentsList().subscribe((data) => {
-      console.log('Components: ');
-      console.log(data);
-      this.allComponents = data;
-    });
-
-    this.wrService.getComponentProblemsList().subscribe((data) => {
-      console.log('Component Problems: ');
-      console.log(data);
-      this.allComponentProblems = data;
-    });
-
-    this.wrService.getProblemsList().subscribe((data) => {
-      console.log('Problems: ');
-      console.log(data);
-      this.allProblems = data;
-    });
-
-    this.wrService.getPersonnelList().subscribe((data) => {
-      console.log('Personnel: ');
-      console.log(data);
-      this.allPersonnel = data;
-      this.allPersonnel.unshift({ PERSONID: '', PERSONNAME: '' });
-    });
-
-    this.wrService.getClassificationsList().subscribe((data) => {
-      console.log('Classifications: ');
-      console.log(data);
-      this.allClassifications = data;
-    });
-  }
-
-  async selectAssetLocation() {
-    this.loadingService.show({
-      message: 'Loading list...',
-    });
-    const modal = await this.modalCtrl.create({
-      component: SearchListComponent,
-      componentProps: {
-        title: 'Asset Locations',
-        options: this.assetLocationOptions,
-      },
-    });
-    modal.present();
-
-    const { data, role } = await modal.onWillDismiss();
-    if (role === 'confirm') {
-      this.wrAssetLocationCode = data;
-      this.onAssetLocationSelected();
-    } else if (role === 'clear') {
-      this.wrAssetLocationCode = '';
-      this.onAssetLocationSelected();
-    }
-  }
-
-  async selectComponent() {
-    if (this.componentComboEnabled) {
-      this.loadingService.show({
-        message: 'Loading list...',
-      });
-      const modal = await this.modalCtrl.create({
-        component: SearchListComponent,
-        componentProps: {
-          title: 'Components',
-          options: this.componentsOptions,
-        },
-      });
-      modal.present();
-
-      const { data, role } = await modal.onWillDismiss();
-      if (role === 'confirm') {
-        this.wrComponentCode = data;
-        this.onComponentSelected();
-      } else if (role === 'clear') {
-        this.wrComponentCode = '';
-        this.onComponentSelected();
-      }
-    }
-  }
 }

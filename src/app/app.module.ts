@@ -7,9 +7,12 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
-import { WorkRequestRestService } from './core';
-import { ToastService } from './core/services/toast.service';
-import { LoaderService } from './core/services/loader.service';
+import {
+  LoaderService,
+  SearchListService,
+  ToastService,
+  WorkRequestRestService,
+} from './core';
 
 @NgModule({
   declarations: [AppComponent],
@@ -24,6 +27,7 @@ import { LoaderService } from './core/services/loader.service';
     WorkRequestRestService,
     ToastService,
     LoaderService,
+    SearchListService,
   ],
   bootstrap: [AppComponent],
 })
