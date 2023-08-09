@@ -143,7 +143,6 @@ export class NewWorkRequestPage implements OnInit {
     this.wrStatus = Status.DRAFT;
     this.wrAssetLocationCode = '';
     this.wrAssetLocation = {};
-    this.assetLocationOptions = [];
     this.wrComponentCode = '';
     this.wrComponent = {};
     this.componentsOptions = [];
