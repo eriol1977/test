@@ -17,6 +17,7 @@ import { WorkRequestRestService } from '../../core';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { SearchListService } from '../../core/services/search-list.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'new-work-request',
@@ -79,7 +80,8 @@ export class NewWorkRequestPage implements OnInit {
     private wrService: WorkRequestRestService,
     private loadingService: LoaderService,
     private toastService: ToastService,
-    private searchListService: SearchListService
+    private searchListService: SearchListService,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -182,6 +184,16 @@ export class NewWorkRequestPage implements OnInit {
     this.updateWRDescription();
   }
 
+  async showAssetLocationDetails() {
+    const alert = await this.alertController.create({
+      header: 'Asset Location Path',
+      subHeader: this.wrAssetLocation.ASLODESCR,
+      message: this.wrAssetLocation.ASLOIDPATH,
+    });
+
+    await alert.present();
+  }
+
   // ---------------------- COMPONENTS ---------------------------------
 
   filterComponents(): void {
@@ -219,6 +231,16 @@ export class NewWorkRequestPage implements OnInit {
       ) || {};
     this.filterProblems();
     this.updateWRDescription();
+  }
+
+  async showAssetComponentDetails() {
+    const alert = await this.alertController.create({
+      header: 'Component Path',
+      subHeader: this.wrComponent.COGRDESCR,
+      message: this.wrComponent.COGRCDPATH,
+    });
+
+    await alert.present();
   }
 
   // ---------------------- PROBLEMS ---------------------------------

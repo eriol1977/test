@@ -28,7 +28,7 @@ export class SearchListComponent implements OnInit {
     this.addOptions();
     setTimeout(() => {
       (ev as InfiniteScrollCustomEvent).target.complete();
-    }, 500);
+    }, 10);
   }
 
   private addOptions(): void {

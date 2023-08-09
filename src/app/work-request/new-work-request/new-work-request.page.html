@@ -86,7 +86,7 @@
 
       <!-- Asset Location -->
       <ion-row>
-        <ion-col size="10">
+        <ion-col>
           <ion-item>
             <ion-input
               type="text"
@@ -99,34 +99,22 @@
               readonly="true"
             >
             </ion-input>
+            <ion-button
+              color="primary"
+              fill="clear"
+              slot="end"
+              *ngIf="wrAssetLocationCode"
+              (click)="showAssetLocationDetails()"
+            >
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </ion-button>
           </ion-item>
         </ion-col>
-        <ion-col size="2">
-          <ion-button
-            id="locationPath"
-            color="light"
-            size="small"
-            class="ion-margin-top"
-            [disabled]="!wrAssetLocationCode"
-          >
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-alert
-            trigger="locationPath"
-            header="Asset Location Path"
-            subHeader="{{wrAssetLocation.ASLODESCR}}"
-            message="{{wrAssetLocation.ASLOIDPATH}}"
-          ></ion-alert
-        ></ion-col>
       </ion-row>
 
       <!-- Component -->
       <ion-row>
-        <ion-col size="10">
+        <ion-col>
           <ion-item>
             <ion-input
               type="text"
@@ -140,29 +128,19 @@
               readonly="true"
             >
             </ion-input>
+            <ion-button
+              id="componentPath"
+              color="primary"
+              fill="clear"
+              slot="end"
+              class="ion-margin-top"
+              *ngIf="wrComponentCode"
+              (click)="showAssetComponentDetails()"
+            >
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </ion-button>
           </ion-item>
         </ion-col>
-        <ion-col size="2">
-          <ion-button
-            id="componentPath"
-            color="light"
-            size="small"
-            class="ion-margin-top"
-            [disabled]="!wrComponentCode"
-          >
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-alert
-            trigger="componentPath"
-            header="Component Path"
-            subHeader="{{wrComponent.COGRDESCR}}"
-            message="{{wrComponent.COGRCDPATH}}"
-          ></ion-alert
-        ></ion-col>
       </ion-row>
 
       <!-- Problem -->
@@ -247,7 +225,7 @@
       <!-- Reported by Guest -->
       <ion-row>
         <ion-col>
-          <ion-item>
+          <ion-item lines="none">
             <ion-label style="font-size: smaller">REPORTED BY GUEST</ion-label>
             <ion-radio-group [(ngModel)]="wrIsRepGuest" name="repByGuest">
               <ion-radio value="Y" justify="end" style="font-size: small"
