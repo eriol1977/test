@@ -134,6 +134,10 @@ export class NewWorkRequestPage implements OnInit {
           ) || {}
         );
       });
+      // sorts problems by description
+      this.componentProblems.sort((prob1, prob2) =>
+        (prob1.PROBDESCR || '') > (prob2.PROBDESCR || '') ? 1 : -1
+      );
       this.componentProblems.unshift({ PROBCODE: '', PROBDESCR: '' });
       this.problemsComboEnabled = true;
     } else {
