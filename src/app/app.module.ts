@@ -13,6 +13,8 @@ import {
   ToastService,
   WorkRequestRestService,
 } from './core';
+import { DataManager } from './core/datamanager/data-manager';
+import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,6 +30,7 @@ import {
     ToastService,
     LoaderService,
     SearchListService,
+    { provide: DataManager, useClass: InMemoryDataManager }, // dependency injection: can switch DataSource implementation here
   ],
   bootstrap: [AppComponent],
 })

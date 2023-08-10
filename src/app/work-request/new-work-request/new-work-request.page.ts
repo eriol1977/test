@@ -13,11 +13,11 @@ import {
   WorkRequest,
   Problem,
 } from '../../common/models';
-import { WorkRequestRestService } from '../../core';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { SearchListService } from '../../core/services/search-list.service';
 import { AlertController } from '@ionic/angular';
+import { DataManager } from 'src/app/core/datamanager/data-manager';
 
 @Component({
   selector: 'new-work-request',
@@ -77,66 +77,44 @@ export class NewWorkRequestPage implements OnInit {
   wrIsRepGuest: string = 'N';
 
   constructor(
-    private wrService: WorkRequestRestService,
     private loadingService: LoaderService,
     private toastService: ToastService,
     private searchListService: SearchListService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private dataManager: DataManager
   ) {}
 
   ngOnInit() {
-    this.loadData();
+    this.loadingService.show({
+      message: 'Loading...',
+    });
+    this.dataManager.synchronize().then((msg) => {
+      this.initData();
+    });
   }
 
   // ---------------------- GLOBAL STUFF ---------------------------------
 
-  private loadData(): void {
-    this.loadingService.show({
-      message: 'Loading...',
+  private initData(): void {
+    this.allAssetLocations = this.dataManager.getAssetLocationList();
+    this.assetLocationOptions = this.allAssetLocations.map((loc) => {
+      return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
     });
 
-    this.wrService.getAssetLocationList().subscribe((data) => {
-      console.log('Asset Locations: ');
-      console.log(data);
-      this.allAssetLocations = data;
-      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
-        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
-      });
-      this.loadingService.hide();
+    this.allClassifications = this.dataManager.getClassificationsList();
+
+    this.allComponents = this.dataManager.getComponentsList();
+
+    this.allComponentProblems = this.dataManager.getComponentProblemsList();
+
+    this.allProblems = this.dataManager.getProblemsList();
+
+    this.allPersonnel = this.dataManager.getPersonnelList();
+    this.reportedByOptions = this.allPersonnel.map((pers) => {
+      return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
     });
 
-    this.wrService.getComponentsList().subscribe((data) => {
-      console.log('Components: ');
-      console.log(data);
-      this.allComponents = data;
-    });
-
-    this.wrService.getComponentProblemsList().subscribe((data) => {
-      console.log('Component Problems: ');
-      console.log(data);
-      this.allComponentProblems = data;
-    });
-
-    this.wrService.getProblemsList().subscribe((data) => {
-      console.log('Problems: ');
-      console.log(data);
-      this.allProblems = data;
-    });
-
-    this.wrService.getPersonnelList().subscribe((data) => {
-      console.log('Personnel: ');
-      console.log(data);
-      this.allPersonnel = data;
-      this.reportedByOptions = this.allPersonnel.map((pers) => {
-        return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
-      });
-    });
-
-    this.wrService.getClassificationsList().subscribe((data) => {
-      console.log('Classifications: ');
-      console.log(data);
-      this.allClassifications = data;
-    });
+    this.loadingService.hide();
   }
 
   private clearForm() {
@@ -376,11 +354,16 @@ export class NewWorkRequestPage implements OnInit {
       ),
       CREATIONOFFSET: this.wrTimezone,
     };
-    this.wrService.addWorkRequest(workRequest).subscribe((data) => {
-      this.loadingService.hide();
-      this.toastService.showSuccess('Work Request added');
-      this.clearForm();
-    });
+    this.dataManager.addWorkRequest(
+      workRequest,
+      this.onWorkRequestAdded.bind(this)
+    );
+  }
+
+  private onWorkRequestAdded(): void {
+    this.loadingService.hide();
+    this.toastService.showSuccess('Work Request added');
+    this.clearForm();
   }
 
   private generateRandomString = (length: number) => {
