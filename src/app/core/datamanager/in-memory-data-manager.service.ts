@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DataManager } from './data-manager';
+import { Observable, of } from 'rxjs';
 import {
   AssetLocation,
   Classification,
@@ -24,63 +25,122 @@ export class InMemoryDataManager implements DataManager {
 
   constructor() {}
 
-  async getAssetLocationList(): Promise<AssetLocation[]> {
-    return this.assetLocations;
+  getAssetLocationList(): Observable<AssetLocation[]> {
+    const observable = new Observable<AssetLocation[]>((observer) => {
+      observer.next(this.assetLocations);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setAssetLocationList(list: AssetLocation[]): Promise<void> {
-    this.assetLocations = list;
+  setAssetLocationList(list: AssetLocation[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.assetLocations = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getClassificationsList(): Promise<Classification[]> {
-    return this.classifications;
+  getClassificationsList(): Observable<Classification[]> {
+    const observable = new Observable<Classification[]>((observer) => {
+      observer.next(this.classifications);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setClassificationsList(list: Classification[]): Promise<void> {
-    this.classifications = list;
+  setClassificationsList(list: Classification[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.classifications = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getComponentsList(): Promise<ComponentAsset[]> {
-    return this.components;
+  getComponentsList(): Observable<ComponentAsset[]> {
+    const observable = new Observable<ComponentAsset[]>((observer) => {
+      observer.next(this.components);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setComponentsList(list: ComponentAsset[]): Promise<void> {
-    this.components = list;
+  setComponentsList(list: ComponentAsset[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.components = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getComponentProblemsList(): Promise<ComponentProblem[]> {
-    return this.componentsProblems;
+  getComponentProblemsList(): Observable<ComponentProblem[]> {
+    const observable = new Observable<ComponentProblem[]>((observer) => {
+      observer.next(this.componentsProblems);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setComponentProblemsList(list: ComponentProblem[]): Promise<void> {
-    this.componentsProblems = list;
+  setComponentProblemsList(list: ComponentProblem[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.componentsProblems = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getProblemsList(): Promise<Problem[]> {
-    return this.problems;
+  getProblemsList(): Observable<Problem[]> {
+    const observable = new Observable<Problem[]>((observer) => {
+      observer.next(this.problems);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setProblemsList(list: Problem[]): Promise<void> {
-    this.problems = list;
+  setProblemsList(list: Problem[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.problems = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getPersonnelList(): Promise<Personnel[]> {
-    return this.personnel;
+  getPersonnelList(): Observable<Personnel[]> {
+    const observable = new Observable<Personnel[]>((observer) => {
+      observer.next(this.personnel);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async setPersonnelList(list: Personnel[]): Promise<void> {
-    this.personnel = list;
+  setPersonnelList(list: Personnel[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.personnel = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
   }
 
-  async addWorkRequest(
-    workRequest: WorkRequest,
-    callback: Function
-  ): Promise<void> {
-    this.workRequests.push(workRequest);
-    callback(workRequest);
+  addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest> {
+    const observable = new Observable<WorkRequest>((observer) => {
+      this.workRequests.push(workRequest);
+      observer.next(workRequest);
+      observer.complete();
+    });
+    return observable;
   }
 
-  async getWorkRequests(): Promise<WorkRequest[]> {
-    return this.workRequests;
+  getWorkRequests(): Observable<WorkRequest[]> {
+    const observable = new Observable<WorkRequest[]>((observer) => {
+      observer.next(this.workRequests);
+      observer.complete();
+    });
+    return observable;
   }
 }

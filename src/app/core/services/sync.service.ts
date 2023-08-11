@@ -55,6 +55,7 @@ export class SyncService {
 
   importAll(): Observable<void> {
     const observable = new Observable<void>((observer) => {
+      // executes all the async imports before proceeding
       const imports: Observable<any>[] = [];
       imports.push(this.importAssetLocationList());
       imports.push(this.importClassificationsList());
@@ -71,15 +72,23 @@ export class SyncService {
           problemsData,
           personnelData,
         ]) => {
-          this.dataManager.setAssetLocationList(assetLocationData);
-          this.dataManager.setClassificationsList(classificationData);
-          this.dataManager.setComponentsList(componentsData);
-          this.dataManager.setComponentProblemsList(compProblemsData);
-          this.dataManager.setProblemsList(problemsData);
-          this.dataManager.setPersonnelList(personnelData);
-          console.log('Import completed');
-          observer.next();
-          observer.complete();
+          // writes all the imported data to the data store before proceeding
+          const setOps: Observable<any>[] = [];
+          setOps.push(this.dataManager.setAssetLocationList(assetLocationData));
+          setOps.push(
+            this.dataManager.setClassificationsList(classificationData)
+          );
+          setOps.push(this.dataManager.setComponentsList(componentsData));
+          setOps.push(
+            this.dataManager.setComponentProblemsList(compProblemsData)
+          );
+          setOps.push(this.dataManager.setProblemsList(problemsData));
+          setOps.push(this.dataManager.setPersonnelList(personnelData));
+          forkJoin(setOps).subscribe(() => {
+            console.log('Import completed');
+            observer.next();
+            observer.complete();
+          });
         }
       );
     });
@@ -182,7 +191,7 @@ export class SyncService {
   exportWorkRequests(): Observable<void> {
     const observable = new Observable<void>((observer) => {
       let workRequests: WorkRequest[] = [];
-      this.dataManager.getWorkRequests().then((list) => {
+      this.dataManager.getWorkRequests().subscribe((list) => {
         workRequests = list.filter(
           (wr) => wr.SYNC === SyncStatus.TO_BE_EXPORTED
         );

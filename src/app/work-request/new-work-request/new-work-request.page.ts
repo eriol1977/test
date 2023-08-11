@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
+import { Observable, forkJoin } from 'rxjs';
 import {
   AssetLocation,
   Classification,
@@ -93,43 +94,52 @@ export class NewWorkRequestPage implements OnInit {
     });
     // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
     this.syncService.synchronize().subscribe(() => {
-      this.initData();
+      this.initData().subscribe(() => {
+        console.log('Import completed');
+        this.loadingService.hide();
+      });
     });
   }
 
   // ---------------------- GLOBAL STUFF ---------------------------------
 
-  private initData(): void {
-    this.dataManager.getAssetLocationList().then((list) => {
-      this.allAssetLocations = list;
-      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
-        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
-      });
-      this.loadingService.hide(); // should be the longest process, and it's the first combo to be used
+  private initData(): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      // executes all the async data retrieving before proceeding
+      const inits: Observable<any>[] = [];
+      inits.push(this.dataManager.getAssetLocationList());
+      inits.push(this.dataManager.getClassificationsList());
+      inits.push(this.dataManager.getComponentsList());
+      inits.push(this.dataManager.getComponentProblemsList());
+      inits.push(this.dataManager.getProblemsList());
+      inits.push(this.dataManager.getPersonnelList());
+      forkJoin(inits).subscribe(
+        ([
+          assetLocationData,
+          classificationData,
+          componentsData,
+          compProblemsData,
+          problemsData,
+          personnelData,
+        ]) => {
+          this.allAssetLocations = assetLocationData;
+          this.assetLocationOptions = this.allAssetLocations.map((loc) => {
+            return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+          });
+          this.allClassifications = classificationData;
+          this.allComponents = componentsData;
+          this.allComponentProblems = compProblemsData;
+          this.allProblems = problemsData;
+          this.allPersonnel = personnelData;
+          this.reportedByOptions = this.allPersonnel.map((pers) => {
+            return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
+          });
+          observer.next();
+          observer.complete();
+        }
+      );
     });
-
-    this.dataManager
-      .getClassificationsList()
-      .then((list) => (this.allClassifications = list));
-
-    this.dataManager
-      .getComponentsList()
-      .then((list) => (this.allComponents = list));
-
-    this.dataManager
-      .getComponentProblemsList()
-      .then((list) => (this.allComponentProblems = list));
-
-    this.dataManager
-      .getProblemsList()
-      .then((list) => (this.allProblems = list));
-
-    this.dataManager.getPersonnelList().then((list) => {
-      this.allPersonnel = list;
-      this.reportedByOptions = this.allPersonnel.map((pers) => {
-        return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
-      });
-    });
+    return observable;
   }
 
   private clearForm() {
@@ -370,15 +380,14 @@ export class NewWorkRequestPage implements OnInit {
       CREATIONOFFSET: this.wrTimezone,
       SYNC: SyncStatus.TO_BE_EXPORTED,
     };
-    this.dataManager.addWorkRequest(
-      workRequest,
-      this.onWorkRequestAdded.bind(this)
-    );
+    this.dataManager
+      .addWorkRequest(workRequest)
+      .subscribe((workRequest) => this.onWorkRequestAdded(workRequest));
   }
 
   private onWorkRequestAdded(workRequest: WorkRequest): void {
     // exports WR as soon as it's been created and added to the data store
-    this.syncService.exportWorkRequest(workRequest).subscribe((_) => {
+    this.syncService.exportWorkRequest(workRequest).subscribe(() => {
       this.loadingService.hide();
       this.toastService.showSuccess('Work Request added');
       this.clearForm();
