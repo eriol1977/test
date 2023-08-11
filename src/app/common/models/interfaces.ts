@@ -1,3 +1,5 @@
+import { SyncStatus } from './enums';
+
 export interface WorkRequest {
   IDLIST?: string;
   WOREWRTYCODE?: string;
@@ -22,6 +24,7 @@ export interface WorkRequest {
   CREATIONUSER?: string;
   CREATIONDATETIME?: string;
   CREATIONOFFSET?: string;
+  SYNC?: SyncStatus;
 }
 
 export interface AssetLocation {

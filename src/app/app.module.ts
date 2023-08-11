@@ -11,7 +11,7 @@ import {
   LoaderService,
   SearchListService,
   ToastService,
-  WorkRequestRestService,
+  SyncService,
 } from './core';
 import { DataManager } from './core/datamanager/data-manager';
 import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.service';
@@ -26,7 +26,7 @@ import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.s
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    WorkRequestRestService,
+    SyncService,
     ToastService,
     LoaderService,
     SearchListService,

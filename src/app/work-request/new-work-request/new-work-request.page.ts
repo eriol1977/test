@@ -12,11 +12,13 @@ import {
   TIMEZONES,
   WorkRequest,
   Problem,
+  SyncStatus,
 } from '../../common/models';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { SearchListService } from '../../core/services/search-list.service';
 import { AlertController } from '@ionic/angular';
+import { SyncService } from 'src/app/core';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
 
 @Component({
@@ -81,6 +83,7 @@ export class NewWorkRequestPage implements OnInit {
     private toastService: ToastService,
     private searchListService: SearchListService,
     private alertController: AlertController,
+    private syncService: SyncService,
     private dataManager: DataManager
   ) {}
 
@@ -88,7 +91,8 @@ export class NewWorkRequestPage implements OnInit {
     this.loadingService.show({
       message: 'Loading...',
     });
-    this.dataManager.synchronize().then((msg) => {
+    // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
+    this.syncService.synchronize().subscribe(() => {
       this.initData();
     });
   }
@@ -96,25 +100,36 @@ export class NewWorkRequestPage implements OnInit {
   // ---------------------- GLOBAL STUFF ---------------------------------
 
   private initData(): void {
-    this.allAssetLocations = this.dataManager.getAssetLocationList();
-    this.assetLocationOptions = this.allAssetLocations.map((loc) => {
-      return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+    this.dataManager.getAssetLocationList().then((list) => {
+      this.allAssetLocations = list;
+      this.assetLocationOptions = this.allAssetLocations.map((loc) => {
+        return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+      });
+      this.loadingService.hide(); // should be the longest process, and it's the first combo to be used
     });
 
-    this.allClassifications = this.dataManager.getClassificationsList();
+    this.dataManager
+      .getClassificationsList()
+      .then((list) => (this.allClassifications = list));
 
-    this.allComponents = this.dataManager.getComponentsList();
+    this.dataManager
+      .getComponentsList()
+      .then((list) => (this.allComponents = list));
 
-    this.allComponentProblems = this.dataManager.getComponentProblemsList();
+    this.dataManager
+      .getComponentProblemsList()
+      .then((list) => (this.allComponentProblems = list));
 
-    this.allProblems = this.dataManager.getProblemsList();
+    this.dataManager
+      .getProblemsList()
+      .then((list) => (this.allProblems = list));
 
-    this.allPersonnel = this.dataManager.getPersonnelList();
-    this.reportedByOptions = this.allPersonnel.map((pers) => {
-      return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
+    this.dataManager.getPersonnelList().then((list) => {
+      this.allPersonnel = list;
+      this.reportedByOptions = this.allPersonnel.map((pers) => {
+        return { value: pers.PERSONID || '', label: pers.PERSONNAME || '' };
+      });
     });
-
-    this.loadingService.hide();
   }
 
   private clearForm() {
@@ -353,6 +368,7 @@ export class NewWorkRequestPage implements OnInit {
         'YYYY-MM-DD HH:mm:ss 000'
       ),
       CREATIONOFFSET: this.wrTimezone,
+      SYNC: SyncStatus.TO_BE_EXPORTED,
     };
     this.dataManager.addWorkRequest(
       workRequest,
@@ -360,10 +376,13 @@ export class NewWorkRequestPage implements OnInit {
     );
   }
 
-  private onWorkRequestAdded(): void {
-    this.loadingService.hide();
-    this.toastService.showSuccess('Work Request added');
-    this.clearForm();
+  private onWorkRequestAdded(workRequest: WorkRequest): void {
+    // exports WR as soon as it's been created and added to the data store
+    this.syncService.exportWorkRequest(workRequest).subscribe((_) => {
+      this.loadingService.hide();
+      this.toastService.showSuccess('Work Request added');
+      this.clearForm();
+    });
   }
 
   private generateRandomString = (length: number) => {

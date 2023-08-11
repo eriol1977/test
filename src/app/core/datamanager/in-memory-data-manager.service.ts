@@ -9,7 +9,6 @@ import {
   Personnel,
   WorkRequest,
 } from 'src/app/common/models';
-import { WorkRequestRestService } from '../services';
 
 @Injectable({
   providedIn: 'root',
@@ -21,66 +20,67 @@ export class InMemoryDataManager implements DataManager {
   componentsProblems: ComponentProblem[] = [];
   problems: Problem[] = [];
   personnel: Personnel[] = [];
+  workRequests: WorkRequest[] = [];
 
-  constructor(private wrService: WorkRequestRestService) {}
+  constructor() {}
 
-  async synchronize(): Promise<any> {
-    return new Promise((resolve) =>
-      this.wrService.getAssetLocationList().subscribe((data) => {
-        this.assetLocations = data;
-
-        this.wrService.getClassificationsList().subscribe((data) => {
-          this.classifications = data;
-
-          this.wrService.getComponentsList().subscribe((data) => {
-            this.components = data;
-
-            this.wrService.getComponentProblemsList().subscribe((data) => {
-              this.componentsProblems = data;
-
-              this.wrService.getProblemsList().subscribe((data) => {
-                this.problems = data;
-
-                this.wrService.getPersonnelList().subscribe((data) => {
-                  this.personnel = data;
-
-                  resolve('OK');
-                });
-              });
-            });
-          });
-        });
-      })
-    );
-  }
-
-  getAssetLocationList(): AssetLocation[] {
+  async getAssetLocationList(): Promise<AssetLocation[]> {
     return this.assetLocations;
   }
 
-  getClassificationsList(): Classification[] {
+  async setAssetLocationList(list: AssetLocation[]): Promise<void> {
+    this.assetLocations = list;
+  }
+
+  async getClassificationsList(): Promise<Classification[]> {
     return this.classifications;
   }
 
-  getComponentsList(): ComponentAsset[] {
+  async setClassificationsList(list: Classification[]): Promise<void> {
+    this.classifications = list;
+  }
+
+  async getComponentsList(): Promise<ComponentAsset[]> {
     return this.components;
   }
 
-  getComponentProblemsList(): ComponentProblem[] {
+  async setComponentsList(list: ComponentAsset[]): Promise<void> {
+    this.components = list;
+  }
+
+  async getComponentProblemsList(): Promise<ComponentProblem[]> {
     return this.componentsProblems;
   }
 
-  getProblemsList(): Problem[] {
+  async setComponentProblemsList(list: ComponentProblem[]): Promise<void> {
+    this.componentsProblems = list;
+  }
+
+  async getProblemsList(): Promise<Problem[]> {
     return this.problems;
   }
 
-  getPersonnelList(): Personnel[] {
+  async setProblemsList(list: Problem[]): Promise<void> {
+    this.problems = list;
+  }
+
+  async getPersonnelList(): Promise<Personnel[]> {
     return this.personnel;
   }
 
-  addWorkRequest(workRequest: WorkRequest, callback: Function): void {
-    this.wrService.addWorkRequest(workRequest).subscribe((data) => {
-      callback(data);
-    });
+  async setPersonnelList(list: Personnel[]): Promise<void> {
+    this.personnel = list;
+  }
+
+  async addWorkRequest(
+    workRequest: WorkRequest,
+    callback: Function
+  ): Promise<void> {
+    this.workRequests.push(workRequest);
+    callback(workRequest);
+  }
+
+  async getWorkRequests(): Promise<WorkRequest[]> {
+    return this.workRequests;
   }
 }
