@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataManager } from './data-manager';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import { SQLiteService } from '../services/sqlite.service';
 import {
   AssetLocation,
   Classification,
@@ -10,24 +11,20 @@ import {
   Personnel,
   WorkRequest,
 } from 'src/app/common/models';
+import { InitializeAppService } from '../services/initialize.app.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class InMemoryDataManager implements DataManager {
-  assetLocations: AssetLocation[] = [];
-  classifications: Classification[] = [];
-  components: ComponentAsset[] = [];
-  componentsProblems: ComponentProblem[] = [];
-  problems: Problem[] = [];
-  personnel: Personnel[] = [];
-  workRequests: WorkRequest[] = [];
-
-  constructor() {}
+export class SQLiteDataManager implements DataManager {
+  constructor(
+    private sqliteService: SQLiteService,
+    private initAppService: InitializeAppService
+  ) {}
 
   getAssetLocationList(): Observable<AssetLocation[]> {
     const observable = new Observable<AssetLocation[]>((observer) => {
-      observer.next(this.assetLocations);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -35,7 +32,6 @@ export class InMemoryDataManager implements DataManager {
 
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.assetLocations = list;
       observer.next();
       observer.complete();
     });
@@ -44,7 +40,7 @@ export class InMemoryDataManager implements DataManager {
 
   getClassificationsList(): Observable<Classification[]> {
     const observable = new Observable<Classification[]>((observer) => {
-      observer.next(this.classifications);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -52,7 +48,6 @@ export class InMemoryDataManager implements DataManager {
 
   setClassificationsList(list: Classification[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.classifications = list;
       observer.next();
       observer.complete();
     });
@@ -61,7 +56,7 @@ export class InMemoryDataManager implements DataManager {
 
   getComponentsList(): Observable<ComponentAsset[]> {
     const observable = new Observable<ComponentAsset[]>((observer) => {
-      observer.next(this.components);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -69,7 +64,6 @@ export class InMemoryDataManager implements DataManager {
 
   setComponentsList(list: ComponentAsset[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.components = list;
       observer.next();
       observer.complete();
     });
@@ -78,7 +72,7 @@ export class InMemoryDataManager implements DataManager {
 
   getComponentProblemsList(): Observable<ComponentProblem[]> {
     const observable = new Observable<ComponentProblem[]>((observer) => {
-      observer.next(this.componentsProblems);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -86,7 +80,6 @@ export class InMemoryDataManager implements DataManager {
 
   setComponentProblemsList(list: ComponentProblem[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.componentsProblems = list;
       observer.next();
       observer.complete();
     });
@@ -95,7 +88,7 @@ export class InMemoryDataManager implements DataManager {
 
   getProblemsList(): Observable<Problem[]> {
     const observable = new Observable<Problem[]>((observer) => {
-      observer.next(this.problems);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -103,7 +96,6 @@ export class InMemoryDataManager implements DataManager {
 
   setProblemsList(list: Problem[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.problems = list;
       observer.next();
       observer.complete();
     });
@@ -112,24 +104,42 @@ export class InMemoryDataManager implements DataManager {
 
   getPersonnelList(): Observable<Personnel[]> {
     const observable = new Observable<Personnel[]>((observer) => {
-      observer.next(this.personnel);
-      observer.complete();
+      let list: Personnel[] = [];
+      this.initAppService.mDb
+        .query('select * from personnel')
+        .then((result) => {
+          list = result.values || [];
+          observer.next(list);
+          observer.complete();
+        });
     });
     return observable;
   }
 
   setPersonnelList(list: Personnel[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.personnel = list;
-      observer.next();
-      observer.complete();
+      this.doSetPersonnelList(list).then(() => {
+        this.initAppService.saveWebMemoryToStore().then(() => {
+          observer.next();
+          observer.complete();
+        });
+      });
     });
     return observable;
   }
 
+  private async doSetPersonnelList(list: Personnel[]): Promise<void> {
+    for (const personnel of list) {
+      await this.sqliteService.save(
+        this.initAppService.mDb,
+        'personnel',
+        personnel
+      );
+    }
+  }
+
   addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest> {
     const observable = new Observable<WorkRequest>((observer) => {
-      this.workRequests.push(workRequest);
       observer.next(workRequest);
       observer.complete();
     });
@@ -138,7 +148,7 @@ export class InMemoryDataManager implements DataManager {
 
   getWorkRequests(): Observable<WorkRequest[]> {
     const observable = new Observable<WorkRequest[]>((observer) => {
-      observer.next(this.workRequests);
+      observer.next([]);
       observer.complete();
     });
     return observable;
@@ -146,15 +156,33 @@ export class InMemoryDataManager implements DataManager {
 
   hasMasterData(): Observable<boolean> {
     const observable = new Observable<boolean>((observer) => {
-      let result =
-        this.assetLocations.length > 0 ||
-        this.classifications.length > 0 ||
-        this.components.length > 0 ||
-        this.componentsProblems.length > 0 ||
-        this.problems.length > 0 ||
-        this.personnel.length > 0;
-      observer.next(result);
-      observer.complete();
+      const reads: Observable<any>[] = [];
+      reads.push(this.getAssetLocationList());
+      reads.push(this.getClassificationsList());
+      reads.push(this.getComponentsList());
+      reads.push(this.getComponentProblemsList());
+      reads.push(this.getProblemsList());
+      reads.push(this.getPersonnelList());
+      forkJoin(reads).subscribe(
+        ([
+          assetLocations,
+          classifications,
+          components,
+          componentsProblems,
+          problems,
+          personnel,
+        ]) => {
+          let result =
+            assetLocations.length > 0 ||
+            classifications.length > 0 ||
+            components.length > 0 ||
+            componentsProblems.length > 0 ||
+            problems.length > 0 ||
+            personnel.length > 0;
+          observer.next(result);
+          observer.complete();
+        }
+      );
     });
     return observable;
   }

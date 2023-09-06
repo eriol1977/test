@@ -1,4 +1,8 @@
-import { NgModule } from '@angular/core';
+import {
+  APP_INITIALIZER,
+  CUSTOM_ELEMENTS_SCHEMA,
+  NgModule,
+} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -16,6 +20,15 @@ import {
 import { DataManager } from './core/datamanager/data-manager';
 import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.service';
 
+import { DbnameVersionService } from './core/services/dbname-version.service';
+import { SQLiteService } from './core/services/sqlite.service';
+import { InitializeAppService } from './core/services/initialize.app.service';
+import { SQLiteDataManager } from './core/datamanager/sqlite-data-manager.service';
+
+export function initializeFactory(init: InitializeAppService) {
+  return () => init.initializeApp();
+}
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -30,8 +43,18 @@ import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.s
     ToastService,
     LoaderService,
     SearchListService,
-    { provide: DataManager, useClass: InMemoryDataManager }, // dependency injection: can switch DataSource implementation here
+    { provide: DataManager, useClass: SQLiteDataManager }, // dependency injection: can switch DataSource implementation here
+    DbnameVersionService,
+    SQLiteService,
+    InitializeAppService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeFactory,
+      deps: [InitializeAppService],
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}

@@ -50,8 +50,8 @@ export class SearchListComponent implements OnInit {
         option.label.toLocaleLowerCase().includes(this.filterText.toLowerCase())
       );
     }
-    this.currentScroll = 0;
     this.visibleOptions = this.filteredOptions.slice(0, this.SCROLL_STEP);
+    this.currentScroll = this.SCROLL_STEP;
   }
 
   cancel() {

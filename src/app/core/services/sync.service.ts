@@ -40,12 +40,18 @@ export class SyncService {
   synchronize(): Observable<void> {
     const observable = new Observable<void>((observer) => {
       const ops: Observable<any>[] = [];
+
       ops.push(this.exportAll());
-      ops.push(this.importAll());
-      forkJoin(ops).subscribe(() => {
-        console.log('Synchronization completed');
-        observer.next();
-        observer.complete();
+
+      // the initial import is done only if there is no data yet
+      this.dataManager.hasMasterData().subscribe((result) => {
+        if (!result) ops.push(this.importAll());
+
+        forkJoin(ops).subscribe(() => {
+          console.log('Synchronization completed');
+          observer.next();
+          observer.complete();
+        });
       });
     });
     return observable;

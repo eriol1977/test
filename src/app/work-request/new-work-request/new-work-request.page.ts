@@ -95,7 +95,6 @@ export class NewWorkRequestPage implements OnInit {
     // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
     this.syncService.synchronize().subscribe(() => {
       this.initData().subscribe(() => {
-        console.log('Import completed');
         this.loadingService.hide();
       });
     });

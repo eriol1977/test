@@ -25,4 +25,5 @@ export abstract class DataManager {
   abstract setPersonnelList(list: Personnel[]): Observable<void>;
   abstract addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest>;
   abstract getWorkRequests(): Observable<WorkRequest[]>;
+  abstract hasMasterData(): Observable<boolean>;
 }

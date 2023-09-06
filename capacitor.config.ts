@@ -9,12 +9,23 @@ const config: CapacitorConfig = {
   },
   plugins: {
     CapacitorSQLite: {
+      iosDatabaseLocation: 'Library/CapacitorDatabase',
+      iosIsEncryption: true,
+      iosKeychainPrefix: 'test',
+      iosBiometric: {
+        biometricAuth: false,
+        biometricTitle: 'Biometric login for capacitor sqlite',
+      },
       androidIsEncryption: true,
       androidBiometric: {
         biometricAuth: false,
-        biometricTitle: 'Title',
-        biometricSubTitle: 'Subtitle',
+        biometricTitle: 'Biometric login for capacitor sqlite',
+        biometricSubTitle: 'Log in using your biometric',
       },
+      electronIsEncryption: false,
+      electronWindowsLocation: 'C:\\ProgramData\\CapacitorDatabases',
+      electronMacLocation: '/Volumes/Development_Lacie/Development/Databases',
+      electronLinuxLocation: 'Databases',
     },
   },
 };
