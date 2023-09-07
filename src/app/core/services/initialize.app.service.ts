@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { SQLiteService } from './sqlite.service';
-import { personnelVersionUpgrades } from '../../upgrades/upgrade-statements';
+import { versionUpgrades } from '../../upgrades/upgrade-statements';
 import { SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { DbnameVersionService } from './dbname-version.service';
 import { Platform } from '@ionic/angular';
@@ -9,10 +9,8 @@ import { Platform } from '@ionic/angular';
 @Injectable()
 export class InitializeAppService {
   isAppInit: boolean = false;
-  public databaseName: string = 'my_db';
-  private versionUpgrades = personnelVersionUpgrades;
-  private loadToVersion =
-    personnelVersionUpgrades[personnelVersionUpgrades.length - 1].toVersion;
+  public databaseName: string = 'MNT_DB_';
+  private loadToVersion = 1;
   mDb!: SQLiteDBConnection;
 
   constructor(
@@ -42,7 +40,7 @@ export class InitializeAppService {
     // create upgrade statements
     await this.sqliteService.addUpgradeStatement({
       database: this.databaseName,
-      upgrade: this.versionUpgrades,
+      upgrade: versionUpgrades,
     });
     // create and/or open the database
     await this.openDatabase();
@@ -71,13 +69,6 @@ export class InitializeAppService {
         this.loadToVersion,
         false
       );
-    }
-  }
-
-  // save the databases from memory to store
-  async saveWebMemoryToStore(): Promise<void> {
-    if (this.sqliteService.platform === 'web') {
-      await this.sqliteService.sqliteConnection.saveToStore(this.databaseName);
     }
   }
 }

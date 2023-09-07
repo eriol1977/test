@@ -78,23 +78,35 @@ export class SyncService {
           problemsData,
           personnelData,
         ]) => {
-          // writes all the imported data to the data store before proceeding
-          const setOps: Observable<any>[] = [];
-          setOps.push(this.dataManager.setAssetLocationList(assetLocationData));
-          setOps.push(
-            this.dataManager.setClassificationsList(classificationData)
-          );
-          setOps.push(this.dataManager.setComponentsList(componentsData));
-          setOps.push(
-            this.dataManager.setComponentProblemsList(compProblemsData)
-          );
-          setOps.push(this.dataManager.setProblemsList(problemsData));
-          setOps.push(this.dataManager.setPersonnelList(personnelData));
-          forkJoin(setOps).subscribe(() => {
-            console.log('Import completed');
-            observer.next();
-            observer.complete();
-          });
+          // cannot use forkJoin here, because of transaction issues when using SQLiteDataManager:
+          // the set operations cannot be executed in parallel
+          this.dataManager
+            .setAssetLocationList(assetLocationData)
+            .subscribe(() => {
+              this.dataManager
+                .setClassificationsList(classificationData)
+                .subscribe(() => {
+                  this.dataManager
+                    .setComponentsList(componentsData)
+                    .subscribe(() => {
+                      this.dataManager
+                        .setComponentProblemsList(compProblemsData)
+                        .subscribe(() => {
+                          this.dataManager
+                            .setProblemsList(problemsData)
+                            .subscribe(() => {
+                              this.dataManager
+                                .setPersonnelList(personnelData)
+                                .subscribe(() => {
+                                  console.log('Import completed');
+                                  observer.next();
+                                  observer.complete();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         }
       );
     });

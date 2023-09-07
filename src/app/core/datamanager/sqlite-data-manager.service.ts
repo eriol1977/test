@@ -24,18 +24,38 @@ export class SQLiteDataManager implements DataManager {
 
   getAssetLocationList(): Observable<AssetLocation[]> {
     const observable = new Observable<AssetLocation[]>((observer) => {
-      observer.next([]);
-      observer.complete();
+      let list: AssetLocation[] = [];
+      this.initAppService.mDb
+        .query('select * from assetLocation')
+        .then((result) => {
+          list = result.values || [];
+          observer.next(list);
+          observer.complete();
+        });
     });
     return observable;
   }
 
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      observer.next();
-      observer.complete();
+      this.doSetAssetLocationList(list).then(() => {
+        this.saveWebMemoryToStore().then(() => {
+          observer.next();
+          observer.complete();
+        });
+      });
     });
     return observable;
+  }
+
+  private async doSetAssetLocationList(list: AssetLocation[]): Promise<void> {
+    for (const assetLoc of list) {
+      await this.sqliteService.save(
+        this.initAppService.mDb,
+        'assetLocation',
+        assetLoc
+      );
+    }
   }
 
   getClassificationsList(): Observable<Classification[]> {
@@ -119,7 +139,7 @@ export class SQLiteDataManager implements DataManager {
   setPersonnelList(list: Personnel[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.doSetPersonnelList(list).then(() => {
-        this.initAppService.saveWebMemoryToStore().then(() => {
+        this.saveWebMemoryToStore().then(() => {
           observer.next();
           observer.complete();
         });
@@ -185,5 +205,14 @@ export class SQLiteDataManager implements DataManager {
       );
     });
     return observable;
+  }
+
+  // save the databases from memory to store
+  private async saveWebMemoryToStore(): Promise<void> {
+    if (this.sqliteService.platform === 'web') {
+      await this.sqliteService.sqliteConnection.saveToStore(
+        this.initAppService.databaseName
+      );
+    }
   }
 }
