@@ -5,12 +5,13 @@ import { versionUpgrades } from '../../upgrades/upgrade-statements';
 import { SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { DbnameVersionService } from './dbname-version.service';
 import { Platform } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class InitializeAppService {
   isAppInit: boolean = false;
-  public databaseName: string = 'MNT_DB_';
-  private loadToVersion = 1;
+  public databaseName: string = environment.databaseName;
+  private loadToVersion = environment.databaseVersion;
   mDb!: SQLiteDBConnection;
 
   constructor(
@@ -22,18 +23,20 @@ export class InitializeAppService {
   }
 
   async initializeApp() {
-    await this.sqliteService.initializePlugin().then(async (ret) => {
-      try {
-        if (this.sqliteService.platform === 'web') {
-          await this.sqliteService.initWebStore();
+    if (environment.useSQLite) {
+      await this.sqliteService.initializePlugin().then(async (ret) => {
+        try {
+          if (this.sqliteService.platform === 'web') {
+            await this.sqliteService.initWebStore();
+          }
+          await this.initializeDatabase();
+          this.isAppInit = true;
+          console.log('DB initialized');
+        } catch (error) {
+          console.log(`initializeAppError: ${error}`);
         }
-        await this.initializeDatabase();
-        this.isAppInit = true;
-        console.log('DB initialized');
-      } catch (error) {
-        console.log(`initializeAppError: ${error}`);
-      }
-    });
+      });
+    }
   }
 
   async initializeDatabase() {

@@ -11,20 +11,22 @@ if (environment.production) {
   enableProdMode();
 }
 
-// --> Below only required if you want to use a web platform
-const platform = Capacitor.getPlatform();
-if (platform === 'web') {
-  // required for jeep-sqlite Stencil component
-  // to use a SQLite database in Browser
-  jeepSqlite(window);
+if (environment.useSQLite) {
+  // --> Below only required if you want to use a web platform
+  const platform = Capacitor.getPlatform();
+  if (platform === 'web') {
+    // required for jeep-sqlite Stencil component
+    // to use a SQLite database in Browser
+    jeepSqlite(window);
 
-  window.addEventListener('DOMContentLoaded', async () => {
-    const jeepEl = document.createElement('jeep-sqlite');
-    document.body.appendChild(jeepEl);
-    //      jeepEl.autoSave = true;
-  });
+    window.addEventListener('DOMContentLoaded', async () => {
+      const jeepEl = document.createElement('jeep-sqlite');
+      document.body.appendChild(jeepEl);
+      //      jeepEl.autoSave = true;
+    });
+  }
+  // Above only required if you want to use a web platform <--
 }
-// Above only required if you want to use a web platform <--
 
 platformBrowserDynamic()
   .bootstrapModule(AppModule)

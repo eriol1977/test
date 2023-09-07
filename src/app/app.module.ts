@@ -24,6 +24,7 @@ import { DbnameVersionService } from './core/services/dbname-version.service';
 import { SQLiteService } from './core/services/sqlite.service';
 import { InitializeAppService } from './core/services/initialize.app.service';
 import { SQLiteDataManager } from './core/datamanager/sqlite-data-manager.service';
+import { environment } from 'src/environments/environment';
 
 export function initializeFactory(init: InitializeAppService) {
   return () => init.initializeApp();
@@ -43,7 +44,10 @@ export function initializeFactory(init: InitializeAppService) {
     ToastService,
     LoaderService,
     SearchListService,
-    { provide: DataManager, useClass: SQLiteDataManager }, // dependency injection: can switch DataSource implementation here
+    {
+      provide: DataManager,
+      useClass: environment.useSQLite ? SQLiteDataManager : InMemoryDataManager,
+    }, // dependency injection: can switch DataSource implementation here
     DbnameVersionService,
     SQLiteService,
     InitializeAppService,
