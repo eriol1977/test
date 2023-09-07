@@ -33,7 +33,7 @@ export function initializeFactory(init: InitializeAppService) {
   declarations: [AppComponent],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
     AppRoutingModule,
     HttpClientModule,
   ],

@@ -15,6 +15,7 @@ import {
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
 import { DataManager } from '../datamanager/data-manager';
+import { Msg } from 'src/app/common/models';
 @Injectable({
   providedIn: 'root',
 })
@@ -80,24 +81,50 @@ export class SyncService {
         ]) => {
           // cannot use forkJoin here, because of transaction issues when using SQLiteDataManager:
           // the set operations cannot be executed in parallel
+          this.loadingService.addMessage(Msg.MSG_SAVE_ASSET_LOCATIONS);
           this.dataManager
             .setAssetLocationList(assetLocationData)
             .subscribe(() => {
+              this.loadingService.removeMessage(Msg.MSG_SAVE_ASSET_LOCATIONS);
+              this.loadingService.addMessage(Msg.MSG_SAVE_CLASSIFICATIONS);
               this.dataManager
                 .setClassificationsList(classificationData)
                 .subscribe(() => {
+                  this.loadingService.removeMessage(
+                    Msg.MSG_SAVE_CLASSIFICATIONS
+                  );
+                  this.loadingService.addMessage(Msg.MSG_SAVE_COMPONENTS);
                   this.dataManager
                     .setComponentsList(componentsData)
                     .subscribe(() => {
+                      this.loadingService.removeMessage(
+                        Msg.MSG_SAVE_COMPONENTS
+                      );
+                      this.loadingService.addMessage(
+                        Msg.MSG_SAVE_COMPONENT_PROBLEMS
+                      );
                       this.dataManager
                         .setComponentProblemsList(compProblemsData)
                         .subscribe(() => {
+                          this.loadingService.removeMessage(
+                            Msg.MSG_SAVE_COMPONENT_PROBLEMS
+                          );
+                          this.loadingService.addMessage(Msg.MSG_SAVE_PROBLEMS);
                           this.dataManager
                             .setProblemsList(problemsData)
                             .subscribe(() => {
+                              this.loadingService.removeMessage(
+                                Msg.MSG_SAVE_PROBLEMS
+                              );
+                              this.loadingService.addMessage(
+                                Msg.MSG_SAVE_PERSONNEL
+                              );
                               this.dataManager
                                 .setPersonnelList(personnelData)
                                 .subscribe(() => {
+                                  this.loadingService.removeMessage(
+                                    Msg.MSG_SAVE_PERSONNEL
+                                  );
                                   console.log('Import completed');
                                   observer.next();
                                   observer.complete();
@@ -114,6 +141,7 @@ export class SyncService {
   }
 
   importAssetLocationList(): Observable<AssetLocation[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);
     return this.http
       .get<AssetLocation[]>(`${this.URL}/4002`, this.httpHeader)
       .pipe(
@@ -124,16 +152,23 @@ export class SyncService {
               (loc1.ASLODESCR || '') > (loc2.ASLODESCR || '') ? 1 : -1
             )
         ), // filters active maintenance asset locations, orders by description
-        tap((array) => console.log(`${array.length} Asset Locations imported`)),
+        tap((array) => {
+          console.log(`${array.length} Asset Locations imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);
+        }),
         catchError(this.handleError<AssetLocation[]>('Get asset locations', []))
       );
   }
 
   importClassificationsList(): Observable<Classification[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_CLASSIFICATIONS);
     return this.http
       .get<Classification[]>(`${this.URL}/4001`, this.httpHeader)
       .pipe(
-        tap((array) => console.log(`${array.length} Classifications imported`)),
+        tap((array) => {
+          console.log(`${array.length} Classifications imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_CLASSIFICATIONS);
+        }),
         catchError(
           this.handleError<Classification[]>('Get classifications', [])
         )
@@ -141,6 +176,7 @@ export class SyncService {
   }
 
   importComponentsList(): Observable<ComponentAsset[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENTS);
     return this.http
       .get<ComponentAsset[]>(`${this.URL}/4003`, this.httpHeader)
       .pipe(
@@ -149,18 +185,23 @@ export class SyncService {
             (comp1.COGRDESCR || '') > (comp2.COGRDESCR || '') ? 1 : -1
           )
         ), //orders by description
-        tap((array) => console.log(`${array.length} Components imported`)),
+        tap((array) => {
+          console.log(`${array.length} Components imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_COMPONENTS);
+        }),
         catchError(this.handleError<ComponentAsset[]>('Get components', []))
       );
   }
 
   importComponentProblemsList(): Observable<ComponentProblem[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENT_PROBLEMS);
     return this.http
       .get<ComponentProblem[]>(`${this.URL}/4005`, this.httpHeader)
       .pipe(
-        tap((array) =>
-          console.log(`${array.length} Component Problems imported`)
-        ),
+        tap((array) => {
+          console.log(`${array.length} Component Problems imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_COMPONENT_PROBLEMS);
+        }),
         catchError(
           this.handleError<ComponentProblem[]>('Get component problems', [])
         )
@@ -168,25 +209,33 @@ export class SyncService {
   }
 
   importProblemsList(): Observable<Problem[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_PROBLEMS);
     return this.http.get<Problem[]>(`${this.URL}/4004`, this.httpHeader).pipe(
       map((probArray) =>
         probArray.filter(
           (prob) => prob.CANCELLED !== 'X' && prob.PROBISSYMPTOM?.trim() === 'Y'
         )
       ), // filters active and is symptom
-      tap((array) => console.log(`${array.length} Problems imported`)),
+      tap((array) => {
+        console.log(`${array.length} Problems imported`);
+        this.loadingService.removeMessage(Msg.MSG_IMPORT_PROBLEMS);
+      }),
       catchError(this.handleError<Problem[]>('Get problems', []))
     );
   }
 
   importPersonnelList(): Observable<Personnel[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_PERSONNEL);
     return this.http.get<Personnel[]>(`${this.URL}/9`, this.httpHeader).pipe(
       map((persArray) =>
         persArray.sort((pers1, pers2) =>
           (pers1.PERSONNAME || '') > (pers2.PERSONNAME || '') ? 1 : -1
         )
       ), //orders by name
-      tap((array) => console.log(`${array.length} Personnel imported`)),
+      tap((array) => {
+        console.log(`${array.length} Personnel imported`);
+        this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
+      }),
       catchError(this.handleError<Personnel[]>('Get personnel', []))
     );
   }
@@ -235,9 +284,20 @@ export class SyncService {
   }
 
   exportWorkRequest(workRequest: WorkRequest): Observable<any> {
+    this.loadingService.show({
+      message: Msg.MSG_EXPORT_WORK_REQUEST,
+    });
     return this.http
       .post<WorkRequest>(`${this.URL}/`, workRequest, this.httpHeader)
-      .pipe(catchError(this.handleError<WorkRequest>('Add Work Request')));
+      .pipe(
+        tap(() => {
+          workRequest.SYNC = SyncStatus.EXPORTED;
+          this.dataManager
+            .updateWorkRequest(workRequest)
+            .subscribe((wr) => this.loadingService.hide());
+        }),
+        catchError(this.handleError<WorkRequest>('Add Work Request'))
+      );
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

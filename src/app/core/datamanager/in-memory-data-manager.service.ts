@@ -136,6 +136,19 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  updateWorkRequest(workRequest: WorkRequest): Observable<WorkRequest> {
+    const observable = new Observable<WorkRequest>((observer) => {
+      // removes the original WR and re-adds it, with its updated fields
+      this.workRequests = this.workRequests.filter(
+        (wr) => wr.IDLIST !== workRequest.IDLIST
+      );
+      this.workRequests.push(workRequest);
+      observer.next(workRequest);
+      observer.complete();
+    });
+    return observable;
+  }
+
   getWorkRequests(): Observable<WorkRequest[]> {
     const observable = new Observable<WorkRequest[]>((observer) => {
       observer.next(this.workRequests);

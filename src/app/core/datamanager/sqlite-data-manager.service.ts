@@ -27,7 +27,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
-    return this.setList(list, 'assetLocation');
+    return this.insertList(list, 'assetLocation');
   }
 
   getClassificationsList(): Observable<Classification[]> {
@@ -35,7 +35,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setClassificationsList(list: Classification[]): Observable<void> {
-    return this.setList(list, 'classification');
+    return this.insertList(list, 'classification');
   }
 
   getComponentsList(): Observable<ComponentAsset[]> {
@@ -43,7 +43,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setComponentsList(list: ComponentAsset[]): Observable<void> {
-    return this.setList(list, 'component');
+    return this.insertList(list, 'component');
   }
 
   getComponentProblemsList(): Observable<ComponentProblem[]> {
@@ -51,7 +51,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setComponentProblemsList(list: ComponentProblem[]): Observable<void> {
-    return this.setList(list, 'componentProblem');
+    return this.insertList(list, 'componentProblem');
   }
 
   getProblemsList(): Observable<Problem[]> {
@@ -59,7 +59,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setProblemsList(list: Problem[]): Observable<void> {
-    return this.setList(list, 'problem');
+    return this.insertList(list, 'problem');
   }
 
   getPersonnelList(): Observable<Personnel[]> {
@@ -67,11 +67,16 @@ export class SQLiteDataManager implements DataManager {
   }
 
   setPersonnelList(list: Personnel[]): Observable<void> {
-    return this.setList(list, 'personnel');
+    return this.insertList(list, 'personnel');
   }
 
   addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest> {
-    return this.setItem(workRequest, 'workRequest');
+    return this.insertItem(workRequest, 'workRequest');
+  }
+
+  updateWorkRequest(workRequest: WorkRequest): Observable<WorkRequest> {
+    let idOption = { IDLIST: "'" + workRequest.IDLIST + "'" };
+    return this.updateItem(workRequest, 'workRequest', idOption);
   }
 
   getWorkRequests(): Observable<WorkRequest[]> {
@@ -132,9 +137,9 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
-  private setList(list: any[], table: string): Observable<void> {
+  private insertList(list: any[], table: string): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      this.doSetList(list, table).then(() => {
+      this.doInsertList(list, table).then(() => {
         this.saveWebMemoryToStore().then(() => {
           observer.next();
           observer.complete();
@@ -144,15 +149,15 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
-  private async doSetList(list: any[], table: string): Promise<void> {
+  private async doInsertList(list: any[], table: string): Promise<void> {
     for (const item of list) {
-      await this.doSetItem(item, table);
+      await this.doInsertItem(item, table);
     }
   }
 
-  private setItem(item: any, table: string): Observable<any> {
+  private insertItem(item: any, table: string): Observable<any> {
     const observable = new Observable<any>((observer) => {
-      this.doSetItem(item, table).then(() => {
+      this.doInsertItem(item, table).then(() => {
         this.saveWebMemoryToStore().then(() => {
           observer.next(item);
           observer.complete();
@@ -162,7 +167,36 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
-  private async doSetItem(item: any, table: string): Promise<void> {
+  private async doInsertItem(item: any, table: string): Promise<void> {
     return this.sqliteService.save(this.initAppService.mDb, table, item);
+  }
+
+  private updateItem(
+    item: any,
+    table: string,
+    idOption: object
+  ): Observable<any> {
+    const observable = new Observable<any>((observer) => {
+      this.doUpdateItem(item, table, idOption).then(() => {
+        this.saveWebMemoryToStore().then(() => {
+          observer.next(item);
+          observer.complete();
+        });
+      });
+    });
+    return observable;
+  }
+
+  private async doUpdateItem(
+    item: any,
+    table: string,
+    idOption: object
+  ): Promise<void> {
+    return this.sqliteService.save(
+      this.initAppService.mDb,
+      table,
+      item,
+      idOption
+    );
   }
 }

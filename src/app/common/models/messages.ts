@@ -1,0 +1,16 @@
+export enum Msg {
+  MSG_IMPORT_ASSET_LOCATIONS = '<BR/>Importing Asset Locations...',
+  MSG_IMPORT_CLASSIFICATIONS = '<BR/>Importing Classifications...',
+  MSG_IMPORT_COMPONENTS = '<BR/>Importing Components...',
+  MSG_IMPORT_COMPONENT_PROBLEMS = '<BR/>Importing Component Problems...',
+  MSG_IMPORT_PROBLEMS = '<BR/>Importing Problems...',
+  MSG_IMPORT_PERSONNEL = '<BR/>Importing Personnel...',
+  MSG_EXPORT_WORK_REQUEST = '<BR/>Exporting Work Request...',
+  MSG_SAVE_ASSET_LOCATIONS = '<BR/>Saving Asset Locations...',
+  MSG_SAVE_CLASSIFICATIONS = '<BR/>Saving Classifications...',
+  MSG_SAVE_COMPONENTS = '<BR/>Saving Components...',
+  MSG_SAVE_COMPONENT_PROBLEMS = '<BR/>Saving Component Problems...',
+  MSG_SAVE_PROBLEMS = '<BR/>Saving Problems...',
+  MSG_SAVE_PERSONNEL = '<BR/>Saving Personnel...',
+  MSG_SAVE_WORK_REQUEST = '<BR/>Saving Work Request...',
+}

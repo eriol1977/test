@@ -89,15 +89,21 @@ export class NewWorkRequestPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadingService.show({
-      message: 'Loading...',
-    });
-    // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
-    this.syncService.synchronize().subscribe(() => {
-      this.initData().subscribe(() => {
-        this.loadingService.hide();
+    this.loadingService
+      .show({
+        message: 'Initializing app:',
+      })
+      .then(() => {
+        // waits for the loading message component to be ready, before proceeding
+
+        // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
+        this.syncService.synchronize().subscribe(() => {
+          this.loadingService.addMessage('<BR/>Initializing local data...');
+          this.initData().subscribe(() => {
+            this.loadingService.hide();
+          });
+        });
       });
-    });
   }
 
   // ---------------------- GLOBAL STUFF ---------------------------------
@@ -344,9 +350,6 @@ export class NewWorkRequestPage implements OnInit {
   // ---------------------- WORK REQUEST ---------------------------------
 
   addWorkRequest(): void {
-    this.loadingService.show({
-      message: 'Adding Work Request...',
-    });
     let workRequest: WorkRequest = {
       IDLIST: this.generateRandomString(15), // where from?
       WOREWRTYCODE: 'HD', // FIXED to HD?
@@ -387,8 +390,7 @@ export class NewWorkRequestPage implements OnInit {
   private onWorkRequestAdded(workRequest: WorkRequest): void {
     // exports WR as soon as it's been created and added to the data store
     this.syncService.exportWorkRequest(workRequest).subscribe(() => {
-      this.loadingService.hide();
-      this.toastService.showSuccess('Work Request added');
+      this.toastService.showSuccess('Work Request exported');
       this.clearForm();
     });
   }

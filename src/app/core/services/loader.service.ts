@@ -16,18 +16,12 @@ export class LoaderService {
    *
    * @param options
    */
-  show(options: LoadingOptions = {}): void {
+  async show(options: LoadingOptions = {}): Promise<void> {
     if (this.creating) return;
-
     this.creating = true;
-
-    this.loadingController.create(options).then((loader) => {
-      this.loader = loader;
-
-      this.loader.present().then(() => {
-        this.isLoaded.next(true);
-      });
-    });
+    this.loader = await this.loadingController.create(options);
+    await this.loader.present();
+    this.isLoaded.next(true);
   }
 
   /**
@@ -44,5 +38,17 @@ export class LoaderService {
         });
       }
     });
+  }
+
+  addMessage(msg: string) {
+    if (this.isLoaded) {
+      this.loader.message += msg;
+    }
+  }
+
+  removeMessage(msg: string) {
+    if (this.isLoaded) {
+      this.loader.message = this.loader.message.replace(msg, '');
+    }
   }
 }
