@@ -14,6 +14,13 @@ const routes: Routes = [
         (m) => m.NewWorkRequestPagePageModule
       ),
   },
+  {
+    path: 'work-request/work-requests',
+    loadChildren: () =>
+      import('./work-request/work-requests/work-requests.module').then(
+        (m) => m.WorkRequestsPageModule
+      ),
+  },
 ];
 
 @NgModule({

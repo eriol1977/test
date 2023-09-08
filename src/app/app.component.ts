@@ -12,6 +12,11 @@ export class AppComponent {
       url: '/work-request/new-work-request',
       icon: 'build',
     },
+    {
+      title: 'Work Requests',
+      url: '/work-request/work-requests',
+      icon: 'list',
+    },
   ];
 
   public menuType: string = 'overlay';
