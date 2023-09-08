@@ -20,7 +20,7 @@ export class WorkRequestsPage implements OnInit {
   ngOnInit() {
     this.loadingService
       .show({
-        message: 'Loading Work Requests...',
+        message: 'Initializing...',
       })
       .then(() => {
         // waits for the loading message component to be ready, before proceeding

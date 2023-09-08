@@ -11,7 +11,7 @@ import {
   Personnel,
   WorkRequest,
 } from 'src/app/common/models';
-import { InitializeAppService } from '../services/initialize.app.service';
+import { DbnameVersionService } from '../services/dbname-version.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ import { InitializeAppService } from '../services/initialize.app.service';
 export class SQLiteDataManager implements DataManager {
   constructor(
     private sqliteService: SQLiteService,
-    private initAppService: InitializeAppService
+    private dbVerService: DbnameVersionService
   ) {}
 
   getAssetLocationList(): Observable<AssetLocation[]> {
@@ -120,7 +120,7 @@ export class SQLiteDataManager implements DataManager {
   private async saveWebMemoryToStore(): Promise<void> {
     if (this.sqliteService.platform === 'web') {
       await this.sqliteService.sqliteConnection.saveToStore(
-        this.initAppService.databaseName
+        this.dbVerService.databaseName
       );
     }
   }
@@ -128,7 +128,7 @@ export class SQLiteDataManager implements DataManager {
   private getList(table: string): Observable<any[]> {
     const observable = new Observable<any[]>((observer) => {
       let list: any[] = [];
-      this.initAppService.mDb.query('select * from ' + table).then((result) => {
+      this.dbVerService.mDb.query('select * from ' + table).then((result) => {
         list = result.values || [];
         observer.next(list);
         observer.complete();
@@ -168,7 +168,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   private async doInsertItem(item: any, table: string): Promise<void> {
-    return this.sqliteService.save(this.initAppService.mDb, table, item);
+    return this.sqliteService.save(this.dbVerService.mDb, table, item);
   }
 
   private updateItem(
@@ -193,7 +193,7 @@ export class SQLiteDataManager implements DataManager {
     idOption: object
   ): Promise<void> {
     return this.sqliteService.save(
-      this.initAppService.mDb,
+      this.dbVerService.mDb,
       table,
       item,
       idOption

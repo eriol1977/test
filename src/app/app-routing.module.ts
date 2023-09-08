@@ -4,7 +4,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'work-request/new-work-request',
+    redirectTo: 'landing',
     pathMatch: 'full',
   },
   {
@@ -20,6 +20,11 @@ const routes: Routes = [
       import('./work-request/work-requests/work-requests.module').then(
         (m) => m.WorkRequestsPageModule
       ),
+  },
+  {
+    path: 'landing',
+    loadChildren: () =>
+      import('./landing/landing.module').then((m) => m.LandingPageModule),
   },
 ];
 

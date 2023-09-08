@@ -7,7 +7,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 })
 export class LoaderService {
   loader: any;
-  isLoaded: Subject<boolean> = new BehaviorSubject<boolean>(false);
+  isLoaded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   creating: boolean = false;
 
   constructor(public loadingController: LoadingController) {}
@@ -41,13 +41,13 @@ export class LoaderService {
   }
 
   addMessage(msg: string) {
-    if (this.isLoaded) {
+    if (this.isLoaded.getValue()) {
       this.loader.message += msg;
     }
   }
 
   removeMessage(msg: string) {
-    if (this.isLoaded) {
+    if (this.isLoaded.getValue()) {
       this.loader.message = this.loader.message.replace(msg, '');
     }
   }

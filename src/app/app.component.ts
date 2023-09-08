@@ -8,6 +8,11 @@ import { AppPage } from './common/models';
 export class AppComponent {
   public appPages: AppPage[] = [
     {
+      title: 'Home',
+      url: '/landing',
+      icon: 'home',
+    },
+    {
       title: 'New Work Request',
       url: '/work-request/new-work-request',
       icon: 'build',

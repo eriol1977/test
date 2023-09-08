@@ -6,23 +6,33 @@ import { SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { DbnameVersionService } from './dbname-version.service';
 import { Platform } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { SyncService } from 'src/app/core';
+import { LoaderService } from '../../core/services/loader.service';
 
 @Injectable()
 export class InitializeAppService {
   isAppInit: boolean = false;
-  public databaseName: string = environment.databaseName;
+  private databaseName: string = environment.databaseName;
   private loadToVersion = environment.databaseVersion;
-  mDb!: SQLiteDBConnection;
+  private mDb!: SQLiteDBConnection;
 
   constructor(
     private platform: Platform,
     private sqliteService: SQLiteService,
-    private dbVerService: DbnameVersionService
+    private dbVerService: DbnameVersionService,
+    private syncService: SyncService,
+    private loadingService: LoaderService
   ) {
     this.platform.ready().then(() => {});
   }
 
   async initializeApp() {
+    // waits for the loading message component to be ready, before proceeding
+    await this.loadingService.show({
+      message: 'Initializing app...',
+    });
+
+    // database initialization, if needed
     if (environment.useSQLite) {
       await this.sqliteService.initializePlugin().then(async (ret) => {
         try {
@@ -30,13 +40,18 @@ export class InitializeAppService {
             await this.sqliteService.initWebStore();
           }
           await this.initializeDatabase();
-          this.isAppInit = true;
-          console.log('DB initialized');
         } catch (error) {
-          console.log(`initializeAppError: ${error}`);
+          this.loadingService.addMessage(`Unexpected error: ${error}`);
+          console.log(`Unexpected error: ${error}`);
         }
       });
     }
+
+    // synchronizes all data to/from MCM
+    this.syncService.synchronize().subscribe(() => {
+      this.isAppInit = true;
+      this.loadingService.hide();
+    });
   }
 
   async initializeDatabase() {
@@ -73,5 +88,7 @@ export class InitializeAppService {
         false
       );
     }
+    this.dbVerService.databaseName = this.databaseName;
+    this.dbVerService.mDb = this.mDb;
   }
 }

@@ -40,20 +40,26 @@ export class SyncService {
 
   synchronize(): Observable<void> {
     const observable = new Observable<void>((observer) => {
-      const ops: Observable<any>[] = [];
+      this.loadingService
+        .show({
+          message: 'Synchronization...',
+        })
+        .then(() => {
+          const ops: Observable<any>[] = [];
 
-      ops.push(this.exportAll());
+          ops.push(this.exportAll());
 
-      // the initial import is done only if there is no data yet
-      this.dataManager.hasMasterData().subscribe((result) => {
-        if (!result) ops.push(this.importAll());
+          // the initial import is done only if there is no data yet
+          this.dataManager.hasMasterData().subscribe((result) => {
+            if (!result) ops.push(this.importAll());
 
-        forkJoin(ops).subscribe(() => {
-          console.log('Synchronization completed');
-          observer.next();
-          observer.complete();
+            forkJoin(ops).subscribe(() => {
+              console.log('Synchronization completed');
+              observer.next();
+              observer.complete();
+            });
+          });
         });
-      });
     });
     return observable;
   }
@@ -292,9 +298,9 @@ export class SyncService {
       .pipe(
         tap(() => {
           workRequest.SYNC = SyncStatus.EXPORTED;
-          this.dataManager
-            .updateWorkRequest(workRequest)
-            .subscribe((wr) => this.loadingService.hide());
+          this.dataManager.updateWorkRequest(workRequest).subscribe((wr) => {
+            this.loadingService.hide();
+          });
         }),
         catchError(this.handleError<WorkRequest>('Add Work Request'))
       );
@@ -302,7 +308,6 @@ export class SyncService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      this.loadingService.hide();
       this.toastService.showError(error.message);
       console.log(`${operation} failed: ${error.message}`);
       return of(result as T);

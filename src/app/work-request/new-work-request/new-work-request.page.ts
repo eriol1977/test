@@ -92,19 +92,14 @@ export class NewWorkRequestPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    // waits for the loading message component to be ready, before proceeding
     this.loadingService
       .show({
-        message: 'Initializing app:',
+        message: 'Initializing...',
       })
       .then(() => {
-        // waits for the loading message component to be ready, before proceeding
-
-        // synchronizes all data to/from MCM as soon as the page is loaded (useful for tests)
-        this.syncService.synchronize().subscribe(() => {
-          this.loadingService.addMessage('<BR/>Initializing local data...');
-          this.initData().subscribe(() => {
-            this.loadingService.hide();
-          });
+        this.initData().subscribe(() => {
+          this.loadingService.hide();
         });
       });
   }
