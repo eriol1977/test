@@ -26,6 +26,20 @@ export class SQLiteDataManager implements DataManager {
     return this.getList('assetLocation');
   }
 
+  getAssetLocation(ASLOCODE: string): Observable<AssetLocation> {
+    const observable = new Observable<AssetLocation>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'assetLocation', {
+          ASLOCODE: "'" + ASLOCODE + "'",
+        })
+        .then((loc) => {
+          observer.next(loc);
+          observer.complete();
+        });
+    });
+    return observable;
+  }
+
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     return this.insertList(list, 'assetLocation');
   }
@@ -42,6 +56,24 @@ export class SQLiteDataManager implements DataManager {
     return this.getList('component');
   }
 
+  getComponent(
+    COGRCDCOMP: string,
+    COGRCDCLASS: string
+  ): Observable<ComponentAsset> {
+    const observable = new Observable<ComponentAsset>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'component', {
+          COGRCDCOMP: "'" + COGRCDCOMP + "'",
+          COGRCDCLASS: "'" + COGRCDCLASS + "'",
+        })
+        .then((loc) => {
+          observer.next(loc);
+          observer.complete();
+        });
+    });
+    return observable;
+  }
+
   setComponentsList(list: ComponentAsset[]): Observable<void> {
     return this.insertList(list, 'component');
   }
@@ -56,6 +88,20 @@ export class SQLiteDataManager implements DataManager {
 
   getProblemsList(): Observable<Problem[]> {
     return this.getList('problem');
+  }
+
+  getProblem(PROBCODE: string): Observable<Problem> {
+    const observable = new Observable<Problem>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'problem', {
+          PROBCODE: "'" + PROBCODE + "'",
+        })
+        .then((loc) => {
+          observer.next(loc);
+          observer.complete();
+        });
+    });
+    return observable;
   }
 
   setProblemsList(list: Problem[]): Observable<void> {

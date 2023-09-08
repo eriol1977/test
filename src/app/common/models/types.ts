@@ -8,3 +8,12 @@ export type SelectOption = {
   value: string;
   label: string;
 };
+
+export type WorkRequestItem = {
+  IDLIST?: string;
+  WOREDESCR?: string;
+  ASLODESCR?: string;
+  COGRDESCR?: string;
+  PROBDESCR?: string;
+  COLOR?: string;
+};

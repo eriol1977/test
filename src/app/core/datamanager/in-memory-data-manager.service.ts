@@ -33,6 +33,15 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getAssetLocation(ASLOCODE: string): Observable<AssetLocation> {
+    const observable = new Observable<AssetLocation>((observer) => {
+      let loc = this.assetLocations.find((l) => l.ASLOCODE === ASLOCODE);
+      observer.next(loc);
+      observer.complete();
+    });
+    return observable;
+  }
+
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.assetLocations = list;
@@ -67,6 +76,20 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getComponent(
+    COGRCDCOMP: string,
+    COGRCDCLASS: string
+  ): Observable<ComponentAsset> {
+    const observable = new Observable<ComponentAsset>((observer) => {
+      let comp = this.components.find(
+        (c) => c.COGRCDCOMP === COGRCDCOMP && c.COGRCDCLASS === COGRCDCLASS
+      );
+      observer.next(comp);
+      observer.complete();
+    });
+    return observable;
+  }
+
   setComponentsList(list: ComponentAsset[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.components = list;
@@ -96,6 +119,15 @@ export class InMemoryDataManager implements DataManager {
   getProblemsList(): Observable<Problem[]> {
     const observable = new Observable<Problem[]>((observer) => {
       observer.next(this.problems);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getProblem(PROBCODE: string): Observable<Problem> {
+    const observable = new Observable<Problem>((observer) => {
+      let prob = this.problems.find((p) => p.PROBCODE === PROBCODE);
+      observer.next(prob);
       observer.complete();
     });
     return observable;

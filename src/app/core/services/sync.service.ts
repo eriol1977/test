@@ -11,6 +11,7 @@ import {
   WorkRequest,
   Problem,
   SyncStatus,
+  Status,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -266,7 +267,9 @@ export class SyncService {
       let workRequests: WorkRequest[] = [];
       this.dataManager.getWorkRequests().subscribe((list) => {
         workRequests = list.filter(
-          (wr) => wr.SYNC === SyncStatus.TO_BE_EXPORTED
+          (wr) =>
+            wr.SYNC === SyncStatus.TO_BE_EXPORTED &&
+            wr.WORESTATCODE === Status.COMPLETED
         );
         if (workRequests.length > 0) {
           const obsWR: Observable<any>[] = [];

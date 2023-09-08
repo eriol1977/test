@@ -22,6 +22,7 @@ import { SearchListService } from '../../core/services/search-list.service';
 import { AlertController } from '@ionic/angular';
 import { SyncService } from 'src/app/core';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'new-work-request',
@@ -88,7 +89,8 @@ export class NewWorkRequestPage implements OnInit {
     private searchListService: SearchListService,
     private alertController: AlertController,
     private syncService: SyncService,
-    private dataManager: DataManager
+    private dataManager: DataManager,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -386,11 +388,18 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   private onWorkRequestAdded(workRequest: WorkRequest): void {
-    // exports WR as soon as it's been created and added to the data store
-    this.syncService.exportWorkRequest(workRequest).subscribe(() => {
-      this.toastService.showSuccess('Work Request exported');
+    // exports WR as soon as it's been created and added to the data store,
+    // but only if it's in COMPLETED state
+    if (workRequest.WORESTATCODE === Status.COMPLETED) {
+      this.syncService.exportWorkRequest(workRequest).subscribe(() => {
+        this.toastService.showSuccess('Work Request exported');
+        this.clearForm();
+        this.router.navigate(['/work-request/work-requests']);
+      });
+    } else {
       this.clearForm();
-    });
+      this.router.navigate(['/work-request/work-requests']);
+    }
   }
 
   private generateRandomString = (length: number) => {

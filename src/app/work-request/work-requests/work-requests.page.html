@@ -9,6 +9,18 @@
 
 <ion-content [fullscreen]="true" scrollY="">
   <ion-list>
-    <ion-item *ngFor="let wr of workRequests">{{wr.WOREDESCR}}</ion-item>
+    <ion-item
+      *ngFor="let wr of workRequests"
+      color="{{wr.COLOR}}"
+      detail="true"
+      button=""
+      (click)="onWorkRequestClicked(wr.IDLIST)"
+    >
+      <ion-label>
+        <h2>{{wr.WOREDESCR}}</h2>
+        <p>{{wr.ASLODESCR}}</p>
+        <p>{{wr.COGRDESCR}} - {{wr.PROBDESCR}}</p>
+      </ion-label>
+    </ion-item>
   </ion-list>
 </ion-content>
