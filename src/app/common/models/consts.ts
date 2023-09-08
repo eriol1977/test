@@ -15,3 +15,8 @@ export const STATUSES: SelectOption[] = [
   { value: Status.DRAFT, label: 'DRAFT' },
   { value: Status.COMPLETED, label: 'COMPLETED' },
 ];
+
+export const YES_NO: SelectOption[] = [
+  { value: 'Y', label: 'Yes' },
+  { value: 'N', label: 'No' },
+];

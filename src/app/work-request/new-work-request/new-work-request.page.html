@@ -216,16 +216,20 @@
       <!-- Reported by Guest -->
       <ion-row>
         <ion-col>
-          <ion-item lines="none">
-            <ion-label style="font-size: smaller">REPORTED BY GUEST</ion-label>
-            <ion-radio-group [(ngModel)]="wrIsRepGuest" name="repByGuest">
-              <ion-radio value="Y" justify="end" style="font-size: small"
-                >Yes</ion-radio
-              ><br />
-              <ion-radio value="N" justify="end" style="font-size: small"
-                >No</ion-radio
-              ><br />
-            </ion-radio-group>
+          <ion-item>
+            <ion-select
+              name="repByGuest"
+              label="REPORTED BY GUEST"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [(ngModel)]="wrIsRepGuest"
+            >
+              <ion-select-option
+                *ngFor="let option of repGuestOpts"
+                value="{{option.value}}"
+                >{{option.label}}</ion-select-option
+              >
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>

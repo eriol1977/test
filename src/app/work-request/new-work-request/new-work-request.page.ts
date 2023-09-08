@@ -14,6 +14,7 @@ import {
   WorkRequest,
   Problem,
   SyncStatus,
+  YES_NO,
 } from '../../common/models';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
@@ -77,7 +78,9 @@ export class NewWorkRequestPage implements OnInit {
 
   wrDescription: string = '';
   wrNotes: string = '';
+
   wrIsRepGuest: string = 'N';
+  repGuestOpts: SelectOption[] = YES_NO;
 
   constructor(
     private loadingService: LoaderService,
