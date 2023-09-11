@@ -2,11 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
 import { LoaderService } from '../../core/services/loader.service';
 import { Observable } from 'rxjs';
-import {
-  SyncStatus,
-  WorkRequest,
-  WorkRequestItem,
-} from 'src/app/common/models';
+import { Status, WorkRequest, WorkRequestItem } from 'src/app/common/models';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,6 +11,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./work-requests.page.scss'],
 })
 export class WorkRequestsPage implements OnInit {
+  loading: boolean = false;
+
   workRequests: WorkRequestItem[] = [];
 
   constructor(
@@ -24,9 +22,19 @@ export class WorkRequestsPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loading = true;
+    this.startLoading();
+  }
+
+  ionViewWillEnter() {
+    if (!this.loading) this.startLoading();
+    this.loading = false;
+  }
+
+  private startLoading(): void {
     this.loadingService
       .show({
-        message: 'Initializing...',
+        message: 'Loading...',
       })
       .then(() => {
         // waits for the loading message component to be ready, before proceeding
@@ -39,13 +47,14 @@ export class WorkRequestsPage implements OnInit {
 
   private initData(): Observable<void> {
     const observable = new Observable<void>((observer) => {
+      this.workRequests = [];
       this.dataManager.getWorkRequests().subscribe((list) => {
         let wrList: WorkRequest[] = list;
         wrList.forEach((wr) => {
           let wrItem: WorkRequestItem = {
             IDLIST: wr.IDLIST,
             WOREDESCR: wr.WOREDESCR,
-            COLOR: wr.SYNC === SyncStatus.TO_BE_EXPORTED ? 'warning' : '',
+            COLOR: wr.WORESTATCODE === Status.DRAFT ? 'warning' : '',
           };
           this.dataManager
             .getAssetLocation(wr.WOREASLOCODE || '')
@@ -74,6 +83,10 @@ export class WorkRequestsPage implements OnInit {
   }
 
   onWorkRequestClicked(IDLIST?: string) {
-    alert(IDLIST);
+    this.router.navigate(['/work-request/edit-work-request', IDLIST]);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/landing']);
   }
 }

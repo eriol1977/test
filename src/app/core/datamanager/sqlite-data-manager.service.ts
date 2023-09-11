@@ -66,8 +66,8 @@ export class SQLiteDataManager implements DataManager {
           COGRCDCOMP: "'" + COGRCDCOMP + "'",
           COGRCDCLASS: "'" + COGRCDCLASS + "'",
         })
-        .then((loc) => {
-          observer.next(loc);
+        .then((comp) => {
+          observer.next(comp);
           observer.complete();
         });
     });
@@ -96,8 +96,8 @@ export class SQLiteDataManager implements DataManager {
         .findOneBy(this.dbVerService.mDb, 'problem', {
           PROBCODE: "'" + PROBCODE + "'",
         })
-        .then((loc) => {
-          observer.next(loc);
+        .then((prob) => {
+          observer.next(prob);
           observer.complete();
         });
     });
@@ -127,6 +127,20 @@ export class SQLiteDataManager implements DataManager {
 
   getWorkRequests(): Observable<WorkRequest[]> {
     return this.getList('workRequest');
+  }
+
+  getWorkRequest(IDLIST: string): Observable<WorkRequest> {
+    const observable = new Observable<WorkRequest>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'workRequest', {
+          IDLIST: "'" + IDLIST + "'",
+        })
+        .then((wr) => {
+          observer.next(wr);
+          observer.complete();
+        });
+    });
+    return observable;
   }
 
   hasMasterData(): Observable<boolean> {

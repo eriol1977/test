@@ -22,7 +22,7 @@ import { SearchListService } from '../../core/services/search-list.service';
 import { AlertController } from '@ionic/angular';
 import { SyncService } from 'src/app/core';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'new-work-request',
@@ -83,6 +83,11 @@ export class NewWorkRequestPage implements OnInit {
   wrIsRepGuest: string = 'N';
   repGuestOpts: SelectOption[] = YES_NO;
 
+  wrToEditId?: string;
+  wrToEdit?: WorkRequest;
+
+  wrDisabled: boolean = false;
+
   constructor(
     private loadingService: LoaderService,
     private toastService: ToastService,
@@ -90,18 +95,29 @@ export class NewWorkRequestPage implements OnInit {
     private alertController: AlertController,
     private syncService: SyncService,
     private dataManager: DataManager,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     // waits for the loading message component to be ready, before proceeding
     this.loadingService
       .show({
-        message: 'Initializing...',
+        message: 'Loading...',
       })
       .then(() => {
         this.initData().subscribe(() => {
           this.loadingService.hide();
+        });
+
+        this.route.params.subscribe((params) => {
+          this.wrToEditId = params['id'];
+          if (this.wrToEditId) {
+            this.dataManager.getWorkRequest(this.wrToEditId).subscribe((wr) => {
+              this.wrToEdit = wr;
+              this.initForm();
+            });
+          }
         });
       });
   }
@@ -168,17 +184,46 @@ export class NewWorkRequestPage implements OnInit {
     this.wrDescription = '';
     this.wrNotes = '';
     this.wrIsRepGuest = 'N';
+    this.wrToEditId = '';
+    this.wrToEdit = undefined;
+  }
+
+  private initForm() {
+    this.wrDate = moment(
+      this.wrToEdit?.WOREDATETIME,
+      'YYYY-MM-DD HH:mm:ss 000'
+    ).format('YYYY-MM-DD HH:mm');
+    this.wrTimezone = this.wrToEdit?.WOREOFFSET || '';
+    this.wrStatus = this.wrToEdit?.WORESTATCODE || '';
+    this.wrAssetLocationCode = this.wrToEdit?.WOREASLOCODE || '';
+    this.onAssetLocationSelected(this.wrAssetLocationCode);
+    this.wrComponentCode = this.wrToEdit?.WORECOGRCODE || '';
+    this.onComponentSelected(this.wrComponentCode);
+    this.wrProblemCode = this.wrToEdit?.WOREPROBCODE || '';
+    this.onProblemSelected(this.wrProblemCode);
+    this.wrReportedByCode = this.wrToEdit?.WOREPERSREPO || '';
+    this.onReportedBySelected(this.wrReportedByCode);
+    this.wrDescription = this.wrToEdit?.WOREDESCR || '';
+    this.wrNotes = this.wrToEdit?.WORENOTE || '';
+    this.wrIsRepGuest = this.wrToEdit?.WOREISREPGUEST || '';
+
+    // the WR cannot be modified, if already sent to MCM
+    if (this.wrToEdit?.SYNC === SyncStatus.EXPORTED) {
+      this.wrDisabled = true;
+    }
   }
 
   // ---------------------- ASSET LOCATIONS ---------------------------------
 
   selectAssetLocation(): void {
-    this.searchListService.openSearchList(
-      'Asset Locations',
-      this.assetLocationOptions,
-      this.onAssetLocationSelected.bind(this),
-      this.onAssetLocationSelected.bind(this)
-    );
+    if (!this.wrDisabled) {
+      this.searchListService.openSearchList(
+        'Asset Locations',
+        this.assetLocationOptions,
+        this.onAssetLocationSelected.bind(this),
+        this.onAssetLocationSelected.bind(this)
+      );
+    }
   }
 
   onAssetLocationSelected(code?: string): void {
@@ -221,7 +266,7 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   selectComponent(): void {
-    if (this.componentComboEnabled) {
+    if (this.componentComboEnabled && !this.wrDisabled) {
       this.searchListService.openSearchList(
         'Components',
         this.componentsOptions,
@@ -289,7 +334,7 @@ export class NewWorkRequestPage implements OnInit {
   }
 
   selectProblem(): void {
-    if (this.problemsComboEnabled) {
+    if (this.problemsComboEnabled && !this.wrDisabled) {
       this.searchListService.openSearchList(
         'Problems',
         this.problemsOptions,
@@ -311,12 +356,14 @@ export class NewWorkRequestPage implements OnInit {
   // ---------------------- REPORTED BY ---------------------------------
 
   selectReportedBy(): void {
-    this.searchListService.openSearchList(
-      'Reported By',
-      this.reportedByOptions,
-      this.onReportedBySelected.bind(this),
-      this.onReportedBySelected.bind(this)
-    );
+    if (!this.wrDisabled) {
+      this.searchListService.openSearchList(
+        'Reported By',
+        this.reportedByOptions,
+        this.onReportedBySelected.bind(this),
+        this.onReportedBySelected.bind(this)
+      );
+    }
   }
 
   onReportedBySelected(code?: string): void {
@@ -349,9 +396,11 @@ export class NewWorkRequestPage implements OnInit {
 
   // ---------------------- WORK REQUEST ---------------------------------
 
-  addWorkRequest(): void {
+  saveWorkRequest(): void {
     let workRequest: WorkRequest = {
-      IDLIST: this.generateRandomString(15), // where from?
+      IDLIST: this.wrToEdit
+        ? this.wrToEdit.IDLIST
+        : this.generateRandomString(15), // where from?
       WOREWRTYCODE: 'HD', // FIXED to HD?
       WORECDUNIT: 'VI', // also FIXED from MCM configuration?
       WORESTATCODE: this.wrStatus,
@@ -382,12 +431,18 @@ export class NewWorkRequestPage implements OnInit {
       CREATIONOFFSET: this.wrTimezone,
       SYNC: SyncStatus.TO_BE_EXPORTED,
     };
-    this.dataManager
-      .addWorkRequest(workRequest)
-      .subscribe((workRequest) => this.onWorkRequestAdded(workRequest));
+    if (this.wrToEdit) {
+      this.dataManager
+        .updateWorkRequest(workRequest)
+        .subscribe((workRequest) => this.onWorkRequestSaved(workRequest));
+    } else {
+      this.dataManager
+        .addWorkRequest(workRequest)
+        .subscribe((workRequest) => this.onWorkRequestSaved(workRequest));
+    }
   }
 
-  private onWorkRequestAdded(workRequest: WorkRequest): void {
+  private onWorkRequestSaved(workRequest: WorkRequest): void {
     // exports WR as soon as it's been created and added to the data store,
     // but only if it's in COMPLETED state
     if (workRequest.WORESTATCODE === Status.COMPLETED) {
@@ -400,6 +455,11 @@ export class NewWorkRequestPage implements OnInit {
       this.clearForm();
       this.router.navigate(['/work-request/work-requests']);
     }
+  }
+
+  goBack(): void {
+    if (this.wrToEdit) this.router.navigate(['/work-request/work-requests']);
+    else this.router.navigate(['/landing']);
   }
 
   private generateRandomString = (length: number) => {

@@ -189,6 +189,15 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getWorkRequest(IDLIST: string): Observable<WorkRequest> {
+    const observable = new Observable<WorkRequest>((observer) => {
+      let wr = this.workRequests.find((wr) => wr.IDLIST === IDLIST);
+      observer.next(wr);
+      observer.complete();
+    });
+    return observable;
+  }
+
   hasMasterData(): Observable<boolean> {
     const observable = new Observable<boolean>((observer) => {
       let result =

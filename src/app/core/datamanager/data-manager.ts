@@ -32,5 +32,6 @@ export abstract class DataManager {
   abstract addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest>;
   abstract updateWorkRequest(workRequest: WorkRequest): Observable<WorkRequest>;
   abstract getWorkRequests(): Observable<WorkRequest[]>;
+  abstract getWorkRequest(IDLIST: string): Observable<WorkRequest>;
   abstract hasMasterData(): Observable<boolean>;
 }

@@ -3,12 +3,23 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>New Work Request</ion-title>
+    <ion-title *ngIf="!wrToEditId" class="ion-text-center"
+      >New Work Request</ion-title
+    >
+    <ion-title *ngIf="wrToEditId" class="ion-text-center"
+      >Work Request</ion-title
+    >
+    <ion-buttons slot="end">
+      <ion-button color="primary" fill="clear" (click)="goBack()">
+        <ion-icon *ngIf="wrToEditId" name="arrow-back-outline"></ion-icon>
+        <ion-icon *ngIf="!wrToEditId" name="home-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" scrollY="">
-  <form #wrForm="ngForm" (ngSubmit)="addWorkRequest()">
+  <form #wrForm="ngForm" (ngSubmit)="saveWorkRequest()">
     <ion-grid>
       <!-- Date and GMT -->
       <ion-row>
@@ -69,6 +80,7 @@
               labelPlacement="stacked"
               interface="action-sheet"
               [(ngModel)]="wrStatus"
+              disabled="{{wrDisabled}}"
             >
               <ion-select-option
                 *ngFor="let option of statuses"
@@ -93,6 +105,7 @@
               [(ngModel)]="wrAssetLocation.ASLODESCR"
               (click)="selectAssetLocation()"
               readonly="true"
+              disabled="{{wrDisabled}}"
             >
             </ion-input>
             <ion-button
@@ -118,7 +131,7 @@
               required
               label="COMPONENT"
               labelPlacement="stacked"
-              [disabled]="!componentComboEnabled"
+              [disabled]="!componentComboEnabled || wrDisabled"
               [(ngModel)]="wrComponent.COGRDESCR"
               (click)="selectComponent()"
               readonly="true"
@@ -149,7 +162,7 @@
               required
               label="PROBLEM"
               labelPlacement="stacked"
-              [disabled]="!problemsComboEnabled"
+              [disabled]="!problemsComboEnabled || wrDisabled"
               [(ngModel)]="wrProblem.PROBDESCR"
               (click)="selectProblem()"
               readonly="true"
@@ -171,6 +184,7 @@
               [(ngModel)]="wrReportedBy.PERSONNAME"
               (click)="selectReportedBy()"
               readonly="true"
+              disabled="{{wrDisabled}}"
             >
             </ion-input>
           </ion-item>
@@ -190,6 +204,7 @@
               maxlength="120"
               [(ngModel)]="wrDescription"
               (ionChange)="onWRDescriptionChanged()"
+              disabled="{{wrDisabled}}"
             >
             </ion-textarea>
           </ion-item>
@@ -207,6 +222,7 @@
               [autoGrow]="true"
               [(ngModel)]="wrNotes"
               (ionChange)="onWRNotesChanged()"
+              disabled="{{wrDisabled}}"
             >
             </ion-textarea>
           </ion-item>
@@ -223,6 +239,7 @@
               labelPlacement="stacked"
               interface="action-sheet"
               [(ngModel)]="wrIsRepGuest"
+              disabled="{{wrDisabled}}"
             >
               <ion-select-option
                 *ngFor="let option of repGuestOpts"
@@ -237,6 +254,7 @@
       <ion-row>
         <ion-col>
           <ion-button
+            *ngIf="!wrDisabled"
             type="submit"
             [disabled]="!wrForm.form.valid"
             expand="full"

@@ -15,6 +15,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'work-request/edit-work-request/:id',
+    loadChildren: () =>
+      import('./work-request/new-work-request/new-work-request.module').then(
+        (m) => m.NewWorkRequestPagePageModule
+      ),
+  },
+  {
     path: 'work-request/work-requests',
     loadChildren: () =>
       import('./work-request/work-requests/work-requests.module').then(
