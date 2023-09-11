@@ -15,6 +15,7 @@ export abstract class DataManager {
   abstract getAssetLocation(ASLOCODE: string): Observable<AssetLocation>;
   abstract setAssetLocationList(list: AssetLocation[]): Observable<void>;
   abstract getClassificationsList(): Observable<Classification[]>;
+  abstract getClassification(CLASCODE: string): Observable<Classification>;
   abstract setClassificationsList(list: Classification[]): Observable<void>;
   abstract getComponentsList(): Observable<ComponentAsset[]>;
   abstract getComponent(
@@ -23,11 +24,17 @@ export abstract class DataManager {
   ): Observable<ComponentAsset>;
   abstract setComponentsList(list: ComponentAsset[]): Observable<void>;
   abstract getComponentProblemsList(): Observable<ComponentProblem[]>;
+  abstract getComponentProblem(
+    PRCOCDCOMP: string,
+    PRCOCDCLASS: string,
+    PRCOCDPROBLEM: string
+  ): Observable<ComponentProblem>;
   abstract setComponentProblemsList(list: ComponentProblem[]): Observable<void>;
   abstract getProblemsList(): Observable<Problem[]>;
   abstract getProblem(PROBCODE: string): Observable<Problem>;
   abstract setProblemsList(list: Problem[]): Observable<void>;
   abstract getPersonnelList(): Observable<Personnel[]>;
+  abstract getPersonnel(PERSONID: string): Observable<Personnel>;
   abstract setPersonnelList(list: Personnel[]): Observable<void>;
   abstract addWorkRequest(workRequest: WorkRequest): Observable<WorkRequest>;
   abstract updateWorkRequest(workRequest: WorkRequest): Observable<WorkRequest>;

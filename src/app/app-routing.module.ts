@@ -33,6 +33,10 @@ const routes: Routes = [
     loadChildren: () =>
       import('./landing/landing.module').then((m) => m.LandingPageModule),
   },
+  {
+    path: 'dbtester',
+    loadChildren: () => import('./dbtester/dbtester.module').then( m => m.DBTesterPageModule)
+  },
 ];
 
 @NgModule({

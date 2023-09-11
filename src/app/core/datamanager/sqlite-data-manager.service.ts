@@ -48,6 +48,20 @@ export class SQLiteDataManager implements DataManager {
     return this.getList('classification');
   }
 
+  getClassification(CLASCODE: string): Observable<Classification> {
+    const observable = new Observable<Classification>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'classification', {
+          CLASCODE: "'" + CLASCODE + "'",
+        })
+        .then((clas) => {
+          observer.next(clas);
+          observer.complete();
+        });
+    });
+    return observable;
+  }
+
   setClassificationsList(list: Classification[]): Observable<void> {
     return this.insertList(list, 'classification');
   }
@@ -82,6 +96,26 @@ export class SQLiteDataManager implements DataManager {
     return this.getList('componentProblem');
   }
 
+  getComponentProblem(
+    PRCOCDCOMP: string,
+    PRCOCDCLASS: string,
+    PRCOCDPROBLEM: string
+  ): Observable<ComponentProblem> {
+    const observable = new Observable<ComponentProblem>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'componentProblem', {
+          PRCOCDCOMP: "'" + PRCOCDCOMP + "'",
+          PRCOCDCLASS: "'" + PRCOCDCLASS + "'",
+          PRCOCDPROBLEM: "'" + PRCOCDPROBLEM + "'",
+        })
+        .then((comp) => {
+          observer.next(comp);
+          observer.complete();
+        });
+    });
+    return observable;
+  }
+
   setComponentProblemsList(list: ComponentProblem[]): Observable<void> {
     return this.insertList(list, 'componentProblem');
   }
@@ -110,6 +144,20 @@ export class SQLiteDataManager implements DataManager {
 
   getPersonnelList(): Observable<Personnel[]> {
     return this.getList('personnel');
+  }
+
+  getPersonnel(PERSONID: string): Observable<Personnel> {
+    const observable = new Observable<Personnel>((observer) => {
+      this.sqliteService
+        .findOneBy(this.dbVerService.mDb, 'personnel', {
+          PERSONID: "'" + PERSONID + "'",
+        })
+        .then((prob) => {
+          observer.next(prob);
+          observer.complete();
+        });
+    });
+    return observable;
   }
 
   setPersonnelList(list: Personnel[]): Observable<void> {

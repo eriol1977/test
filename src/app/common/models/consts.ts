@@ -20,3 +20,13 @@ export const YES_NO: SelectOption[] = [
   { value: 'Y', label: 'Yes' },
   { value: 'N', label: 'No' },
 ];
+
+export const TABLES: SelectOption[] = [
+  { value: 'assetLocation', label: 'ASSET LOCATIONS' },
+  { value: 'classification', label: 'CLASSIFICATIONS' },
+  { value: 'component', label: 'COMPONENTS' },
+  { value: 'componentProblem', label: 'COMPONENT PROBLEMS' },
+  { value: 'problem', label: 'PROBLEMS' },
+  { value: 'personnel', label: 'PERSONNEL' },
+  { value: 'workRequest', label: 'WORK REQUESTS' },
+];

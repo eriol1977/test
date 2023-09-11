@@ -127,7 +127,21 @@ export class SQLiteService {
   ): Promise<any> {
     try {
       const key: string = Object.keys(where)[0];
-      const stmt: string = `SELECT * FROM ${table} WHERE ${key}=${where[key]};`;
+      let stmt: string = `SELECT * FROM ${table} WHERE ${key}=${where[key]}`;
+
+      // two IDs
+      if (Object.keys(where).length > 1) {
+        const key2: string = Object.keys(where)[1];
+        stmt += ` AND ${key2}=${where[key2]}`;
+      }
+
+      // three IDs
+      if (Object.keys(where).length > 2) {
+        const key3: string = Object.keys(where)[2];
+        stmt += ` AND ${key3}=${where[key3]}`;
+      }
+
+      stmt += ';';
       const retValues = (await mDb.query(stmt)).values;
       const ret = retValues!.length > 0 ? retValues![0] : null;
       return ret;

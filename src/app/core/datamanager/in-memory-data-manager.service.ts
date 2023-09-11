@@ -59,6 +59,15 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getClassification(CLASCODE: string): Observable<Classification> {
+    const observable = new Observable<Classification>((observer) => {
+      let clas = this.classifications.find((c) => c.CLASCODE === CLASCODE);
+      observer.next(clas);
+      observer.complete();
+    });
+    return observable;
+  }
+
   setClassificationsList(list: Classification[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.classifications = list;
@@ -107,6 +116,24 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getComponentProblem(
+    PRCOCDCOMP: string,
+    PRCOCDCLASS: string,
+    PRCOCDPROBLEM: string
+  ): Observable<ComponentProblem> {
+    const observable = new Observable<ComponentProblem>((observer) => {
+      let comp = this.componentsProblems.find(
+        (c) =>
+          c.PRCOCDCOMP === PRCOCDCOMP &&
+          c.PRCOCDCLASS === PRCOCDCLASS &&
+          c.PRCOCDPROBLEM === PRCOCDPROBLEM
+      );
+      observer.next(comp);
+      observer.complete();
+    });
+    return observable;
+  }
+
   setComponentProblemsList(list: ComponentProblem[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.componentsProblems = list;
@@ -145,6 +172,15 @@ export class InMemoryDataManager implements DataManager {
   getPersonnelList(): Observable<Personnel[]> {
     const observable = new Observable<Personnel[]>((observer) => {
       observer.next(this.personnel);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getPersonnel(PERSONID: string): Observable<Personnel> {
+    const observable = new Observable<Personnel>((observer) => {
+      let pers = this.personnel.find((p) => p.PERSONID === PERSONID);
+      observer.next(pers);
       observer.complete();
     });
     return observable;

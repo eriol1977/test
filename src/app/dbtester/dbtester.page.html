@@ -1,0 +1,110 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>DBTester</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" scrollY="">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-select
+          label="OPERATION"
+          labelPlacement="stacked"
+          [(ngModel)]="operation"
+          interface="action-sheet"
+        >
+          <ion-select-option
+            *ngFor="let option of operations"
+            value="{{option.value}}"
+            >{{option.label}}</ion-select-option
+          >
+        </ion-select></ion-col
+      >
+    </ion-row>
+    <ion-row>
+      <ion-col
+        ><ion-checkbox
+          labelPlacement="end"
+          *ngIf="operation==='S' && !recordId"
+          [(ngModel)]="count"
+          >Count only</ion-checkbox
+        ></ion-col
+      ></ion-row
+    >
+    <ion-row>
+      <ion-col>
+        <ion-select
+          label="TABLE"
+          labelPlacement="stacked"
+          [(ngModel)]="table"
+          interface="action-sheet"
+        >
+          <ion-select-option
+            *ngFor="let option of tables"
+            value="{{option.value}}"
+            >{{option.label}}</ion-select-option
+          >
+        </ion-select></ion-col
+      >
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-input
+          type="text"
+          label="ID"
+          labelPlacement="stacked"
+          [(ngModel)]="recordId"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+      ><ion-col *ngIf="table === 'component' || table === 'componentProblem'">
+        <ion-input
+          type="text"
+          label="ID 2"
+          labelPlacement="stacked"
+          [(ngModel)]="recordId2"
+          [clearInput]="true"
+        >
+        </ion-input>
+      </ion-col>
+      <ion-col *ngIf="table === 'componentProblem'">
+        <ion-input
+          type="text"
+          label="ID 3"
+          labelPlacement="stacked"
+          [(ngModel)]="recordId3"
+          [clearInput]="true"
+        >
+        </ion-input>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" (click)="execute()"
+          >EXECUTE</ion-button
+        ></ion-col
+      >
+      <ion-col>
+        <ion-button expand="full" color="danger" (click)="clear()"
+          >CLEAR</ion-button
+        ></ion-col
+      >
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <br />
+        <ion-textarea
+          *ngIf="result"
+          style="font-size: small"
+          value="{{result}}"
+          rows="25"
+        >
+        </ion-textarea>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

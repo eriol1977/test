@@ -22,6 +22,11 @@ export class AppComponent {
       url: '/work-request/work-requests',
       icon: 'list',
     },
+    {
+      title: 'DB Tester',
+      url: '/dbtester',
+      icon: 'file-tray-stacked',
+    },
   ];
 
   public menuType: string = 'overlay';
