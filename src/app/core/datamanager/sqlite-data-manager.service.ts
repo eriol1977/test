@@ -198,8 +198,10 @@ export class SQLiteDataManager implements DataManager {
           IDLIST: "'" + IDLIST + "'",
         })
         .then(() => {
-          observer.next();
-          observer.complete();
+          this.saveWebMemoryToStore().then(() => {
+            observer.next();
+            observer.complete();
+          });
         });
     });
     return observable;
