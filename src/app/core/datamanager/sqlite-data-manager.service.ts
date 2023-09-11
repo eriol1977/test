@@ -191,6 +191,20 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
+  deleteWorkRequest(IDLIST: string): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.sqliteService
+        .remove(this.dbVerService.mDb, 'workRequest', {
+          IDLIST: "'" + IDLIST + "'",
+        })
+        .then(() => {
+          observer.next();
+          observer.complete();
+        });
+    });
+    return observable;
+  }
+
   hasMasterData(): Observable<boolean> {
     const observable = new Observable<boolean>((observer) => {
       const reads: Observable<any>[] = [];

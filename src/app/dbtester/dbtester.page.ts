@@ -9,7 +9,10 @@ import { LoaderService } from '../core';
   styleUrls: ['./dbtester.page.scss'],
 })
 export class DBTesterPage implements OnInit {
-  operations: SelectOption[] = [{ value: 'S', label: 'SELECT' }];
+  operations: SelectOption[] = [
+    { value: 'S', label: 'SELECT' },
+    { value: 'D', label: 'DELETE' },
+  ];
   operation: string = 'S';
   count: boolean = false;
   tables: SelectOption[] = TABLES;
@@ -35,6 +38,9 @@ export class DBTesterPage implements OnInit {
         switch (this.operation) {
           case 'S':
             this.select();
+            break;
+          case 'D':
+            this.delete();
             break;
         }
       });
@@ -151,7 +157,30 @@ export class DBTesterPage implements OnInit {
         }
         break;
       default:
-        this.displayResult('Unrecognized table');
+        this.displayResult('Operation not yet implemented!');
+    }
+  }
+
+  delete(): void {
+    switch (this.table) {
+      case 'workRequest':
+        if (this.recordId === '') {
+          this.displayResult('Record ID is mandatory');
+        } else {
+          this.dataManager.getWorkRequest(this.recordId).subscribe((item) => {
+            if (item === null) this.displayResult('No record found');
+            else {
+              this.dataManager
+                .deleteWorkRequest(this.recordId)
+                .subscribe(() => {
+                  this.displayResult('Record deleted');
+                });
+            }
+          });
+        }
+        break;
+      default:
+        this.displayResult('Operation not yet implemented!');
     }
   }
 

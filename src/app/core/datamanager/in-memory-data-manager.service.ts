@@ -234,6 +234,17 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  deleteWorkRequest(IDLIST: string): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.workRequests = this.workRequests.filter(
+        (wr) => wr.IDLIST !== IDLIST
+      );
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
   hasMasterData(): Observable<boolean> {
     const observable = new Observable<boolean>((observer) => {
       let result =
