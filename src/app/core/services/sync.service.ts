@@ -154,11 +154,11 @@ export class SyncService {
       .pipe(
         map((locArray) =>
           locArray
-            .filter((loc) => loc.ASLOISMAINT === 'Y' && loc.CANCELLED !== 'X')
+            .filter((loc) => loc.CANCELLED !== 'X')
             .sort((loc1, loc2) =>
               (loc1.ASLODESCR || '') > (loc2.ASLODESCR || '') ? 1 : -1
             )
-        ), // filters active maintenance asset locations, orders by description
+        ), // filters active asset locations, orders by description
         tap((array) => {
           console.log(`${array.length} Asset Locations imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);

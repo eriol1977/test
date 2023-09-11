@@ -143,7 +143,9 @@ export class NewWorkRequestPage implements OnInit {
           problemsData,
           personnelData,
         ]) => {
-          this.allAssetLocations = assetLocationData;
+          this.allAssetLocations = assetLocationData.filter(
+            (loc: AssetLocation) => loc.ASLOISMAINT === 'Y'
+          ); // only maintenance asset locations are selectable
           this.assetLocationOptions = this.allAssetLocations.map((loc) => {
             return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
           });
