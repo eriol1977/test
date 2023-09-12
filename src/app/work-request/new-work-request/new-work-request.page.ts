@@ -143,12 +143,13 @@ export class NewWorkRequestPage implements OnInit {
           problemsData,
           personnelData,
         ]) => {
-          this.allAssetLocations = assetLocationData.filter(
-            (loc: AssetLocation) => loc.ASLOISMAINT === 'Y'
-          ); // only maintenance asset locations are selectable
-          this.assetLocationOptions = this.allAssetLocations.map((loc) => {
-            return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
-          });
+          this.allAssetLocations = assetLocationData;
+          // only maintenance asset locations are selectable in the main combo
+          this.assetLocationOptions = this.allAssetLocations
+            .filter((loc: AssetLocation) => loc.ASLOISMAINT === 'Y')
+            .map((loc) => {
+              return { value: loc.ASLOCODE || '', label: loc.ASLODESCR || '' };
+            });
           this.allClassifications = classificationData;
           this.allComponents = componentsData;
           this.allComponentProblems = compProblemsData;
@@ -217,6 +218,7 @@ export class NewWorkRequestPage implements OnInit {
 
   // ---------------------- ASSET LOCATIONS ---------------------------------
 
+  // selection from main combo
   selectAssetLocation(): void {
     if (!this.wrDisabled) {
       this.searchListService.openSearchList(
@@ -228,6 +230,35 @@ export class NewWorkRequestPage implements OnInit {
     }
   }
 
+  private locationPath: string = '';
+  private parentLocationCodes: string[] = [];
+
+  // selection from "treeview" (combos for different levels)
+  selectAssetLocationTreeview(ASLOIDPARENT: string): void {
+    if (!this.wrDisabled) {
+      this.dataManager
+        .getChildrenAssetLocations(ASLOIDPARENT)
+        .subscribe((list) => {
+          // creates list elements from children asset locations
+          let options = list.map((loc) => {
+            return {
+              value: loc.ASLOCODE || '',
+              label: loc.ASLODESCR || '',
+              color: loc.ASLOISMAINT === 'Y' ? 'secondary' : '',
+            };
+          });
+          this.searchListService.openSearchList(
+            'Asset Locations',
+            options,
+            this.onAssetLocationSelectedFromTreeview.bind(this),
+            this.onAssetLocationSelected.bind(this),
+            this.locationPath
+          );
+        });
+    }
+  }
+
+  // asset location was selected from main combo
   onAssetLocationSelected(code?: string): void {
     this.wrAssetLocationCode = code || '';
     this.wrAssetLocation =
@@ -237,6 +268,37 @@ export class NewWorkRequestPage implements OnInit {
     this.filterComponents();
     this.filterProblems();
     this.updateWRDescription();
+  }
+
+  // asset location was selected from "treeview" combos
+  onAssetLocationSelectedFromTreeview(code?: string): void {
+    if (code) {
+      let location =
+        this.allAssetLocations.find((loc) => loc.ASLOCODE === code) || {};
+      if (location.ASLOISMAINT === 'Y') {
+        // if a maintenance location has been selected, the process ends
+        this.wrAssetLocationCode = code || '';
+        this.wrAssetLocation = location;
+        this.locationPath = '';
+        this.parentLocationCodes = [];
+        this.filterComponents();
+        this.filterProblems();
+        this.updateWRDescription();
+      } else {
+        // otherwise, the next "treeview" level is opened, to show the location's children
+        this.locationPath += '/' + location.ASLODESCR;
+        this.parentLocationCodes.push(location.ASLOIDPARENT || '');
+        this.selectAssetLocationTreeview(code || '');
+      }
+    } else {
+      // go back to previous path step
+      let pathParts = this.locationPath.split('/');
+      this.locationPath = '';
+      for (let i = 1; i < pathParts.length - 1; i++) {
+        this.locationPath += '/' + pathParts[i];
+      }
+      this.selectAssetLocationTreeview(this.parentLocationCodes.pop() || '');
+    }
   }
 
   async showAssetLocationDetails() {

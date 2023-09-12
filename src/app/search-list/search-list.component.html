@@ -26,11 +26,25 @@
         ></ion-searchbar>
       </ion-col>
     </ion-row>
+    <ion-row *ngIf="path">
+      <ion-col>
+        <ion-text style="font-size: small">{{ path }}</ion-text>
+        <ion-icon
+          class="ion-padding-start"
+          name="arrow-back-outline"
+          (click)="goBackInPath()"
+        ></ion-icon>
+      </ion-col>
+    </ion-row>
   </ion-grid>
 </ion-header>
 <ion-content class="ion-padding" role="feed">
   <ion-list>
-    <ion-item *ngFor="let option of visibleOptions" role="article">
+    <ion-item
+      *ngFor="let option of visibleOptions"
+      role="article"
+      color="{{ option.color }}"
+    >
       <ion-label (click)="confirm(option.value)">{{ option.label }}</ion-label>
     </ion-item>
   </ion-list>

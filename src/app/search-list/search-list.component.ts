@@ -16,6 +16,7 @@ export class SearchListComponent implements OnInit {
   filterText: string = '';
   SCROLL_STEP: number = 20;
   currentScroll: number = 0;
+  path?: string;
 
   constructor(private modalCtrl: ModalController) {}
 
@@ -64,5 +65,9 @@ export class SearchListComponent implements OnInit {
 
   confirm(aslocode: string) {
     return this.modalCtrl.dismiss(aslocode, 'confirm');
+  }
+
+  goBackInPath() {
+    return this.modalCtrl.dismiss(null, 'back');
   }
 }

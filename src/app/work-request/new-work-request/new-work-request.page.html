@@ -108,15 +108,27 @@
               disabled="{{wrDisabled}}"
             >
             </ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col class="ion-no-padding ion-no-margin" size="auto">
+          <ion-item lines="none" class="ion-no-padding ion-no-margin">
             <ion-button
+              size="small"
               color="primary"
-              fill="clear"
-              slot="end"
               *ngIf="wrAssetLocationCode"
+              class="ion-margin-top"
               (click)="showAssetLocationDetails()"
             >
               <ion-icon name="information-circle-outline"></ion-icon>
             </ion-button>
+            <ion-button
+              size="small"
+              color="primary"
+              disabled="{{wrDisabled}}"
+              class="ion-margin-top"
+              (click)="selectAssetLocationTreeview('')"
+              ><ion-icon name="git-merge-outline"></ion-icon
+            ></ion-button>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -137,11 +149,14 @@
               readonly="true"
             >
             </ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col class="ion-no-padding ion-no-margin" size="auto">
+          <ion-item lines="none" class="ion-no-padding ion-no-margin">
             <ion-button
               id="componentPath"
+              size="small"
               color="primary"
-              fill="clear"
-              slot="end"
               class="ion-margin-top"
               *ngIf="wrComponentCode"
               (click)="showAssetComponentDetails()"

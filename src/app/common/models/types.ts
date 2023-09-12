@@ -7,6 +7,7 @@ export type AppPage = {
 export type SelectOption = {
   value: string;
   label: string;
+  color?: string;
 };
 
 export type WorkRequestItem = {

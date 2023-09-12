@@ -42,6 +42,16 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getChildrenAssetLocations(ASLOIDPARENT: string): Observable<AssetLocation[]> {
+    const observable = new Observable<AssetLocation[]>((observer) => {
+      observer.next(
+        this.assetLocations.filter((loc) => loc.ASLOIDPARENT === ASLOIDPARENT)
+      );
+      observer.complete();
+    });
+    return observable;
+  }
+
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.assetLocations = list;

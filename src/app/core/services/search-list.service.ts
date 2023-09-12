@@ -13,13 +13,15 @@ export class SearchListService {
     title: string,
     options: SelectOption[],
     callbackConfirm: Function,
-    callbackClear: Function
+    callbackClear: Function,
+    path?: string
   ) {
     const modal = await this.modalCtrl.create({
       component: SearchListComponent,
       componentProps: {
         title: title,
         options: options,
+        path: path,
       },
     });
     modal.present();
@@ -29,6 +31,8 @@ export class SearchListService {
       callbackConfirm(data);
     } else if (role === 'clear') {
       callbackClear();
+    } else if (role === 'back') {
+      callbackConfirm();
     }
   }
 }

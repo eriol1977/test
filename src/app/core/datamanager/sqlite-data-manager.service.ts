@@ -40,6 +40,16 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
+  getChildrenAssetLocations(ASLOIDPARENT: string): Observable<AssetLocation[]> {
+    const observable = new Observable<any[]>((observer) => {
+      this.getAssetLocationList().subscribe((list) => {
+        observer.next(list.filter((loc) => loc.ASLOIDPARENT === ASLOIDPARENT));
+        observer.complete();
+      });
+    });
+    return observable;
+  }
+
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     return this.insertList(list, 'assetLocation');
   }
