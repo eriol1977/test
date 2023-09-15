@@ -578,9 +578,7 @@ export class SQLiteDataManager implements DataManager {
   }
 
   private async doInsertList(list: any[], table: string): Promise<void> {
-    for (const item of list) {
-      await this.doInsertItem(item, table);
-    }
+    await this.sqliteService.insertMany(this.dbVerService.mDb, table, list);
   }
 
   private insertItem(item: any, table: string): Observable<any> {

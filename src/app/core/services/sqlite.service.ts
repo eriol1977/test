@@ -9,6 +9,7 @@ import {
   capSQLiteUpgradeOptions,
   capSQLiteResult,
   capSQLiteValues,
+  capSQLiteSet,
 } from '@capacitor-community/sqlite';
 import { DbnameVersionService } from 'src/app/core/services/dbname-version.service';
 
@@ -186,6 +187,40 @@ export class SQLiteService {
     }
     return;
   }
+
+  async insertMany(
+    mDb: SQLiteDBConnection,
+    table: string,
+    items: any[]
+  ): Promise<void> {
+    // get field names from the first item, since they are the same for all items
+    const keys: string[] = Object.keys(items[0]);
+
+    const qMarks: string[] = [];
+    for (const key of keys) {
+      qMarks.push('?');
+    }
+
+    const sql = `INSERT INTO ${table} (${keys.toString()}) VALUES (${qMarks.toString()});`;
+
+    let statements: capSQLiteSet[] = [];
+    items.forEach((item) => {
+      let values: any[] = [];
+      for (const key of keys) {
+        values.push(item[key]);
+      }
+      let stmt: capSQLiteSet = {
+        statement: sql,
+        values: values,
+      };
+      statements.push(stmt);
+    });
+
+    const ret = await mDb.executeSet(statements);
+
+    return;
+  }
+
   async unencryptCryptedDatabases(): Promise<void> {
     const dbList: string[] = (await this.getDatabaseList()).values!;
     for (let idx: number = 0; idx < dbList.length; idx++) {
