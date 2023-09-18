@@ -230,12 +230,12 @@ export class NewWorkRequestPage implements OnInit {
     }
   }
 
-  private locationPath: string = '';
-  private parentLocationCodes: string[] = [];
-
   // selection from "treeview" (combos for different levels)
   selectAssetLocationTreeview(ASLOIDPARENT: string): void {
     if (!this.wrDisabled) {
+      // stores the code of the location for the 'Back' operation,
+      // which should be the parent of the informed parent location
+      this.setGoBackLocationCode(ASLOIDPARENT);
       this.dataManager
         .getChildrenAssetLocations(ASLOIDPARENT)
         .subscribe((list) => {
@@ -247,13 +247,18 @@ export class NewWorkRequestPage implements OnInit {
               color: loc.ASLOISMAINT === 'Y' ? 'secondary' : '',
             };
           });
-          this.searchListService.openSearchList(
-            'Asset Locations',
-            options,
-            this.onAssetLocationSelectedFromTreeview.bind(this),
-            this.onAssetLocationSelected.bind(this),
-            this.locationPath
-          );
+          // before proceeding, fills in the descriptive path for the presently selected asset location
+          this.dataManager
+            .getAssetLocationDescriptivePath(ASLOIDPARENT)
+            .subscribe((path) => {
+              this.searchListService.openSearchList(
+                'Asset Locations',
+                options,
+                this.onAssetLocationSelectedFromTreeview.bind(this),
+                this.onAssetLocationSelected.bind(this),
+                path
+              );
+            });
         });
     }
   }
@@ -270,6 +275,10 @@ export class NewWorkRequestPage implements OnInit {
     this.updateWRDescription();
   }
 
+  // stores the code of the "grandma" location to go back to
+  // when executing a Back operation from the treeview path
+  private goBackLocationCode: string = '';
+
   // asset location was selected from "treeview" combos
   onAssetLocationSelectedFromTreeview(code?: string): void {
     if (code) {
@@ -279,26 +288,25 @@ export class NewWorkRequestPage implements OnInit {
         // if a maintenance location has been selected, the process ends
         this.wrAssetLocationCode = code || '';
         this.wrAssetLocation = location;
-        this.locationPath = '';
-        this.parentLocationCodes = [];
         this.filterComponents();
         this.filterProblems();
         this.updateWRDescription();
       } else {
         // otherwise, the next "treeview" level is opened, to show the location's children
-        this.locationPath += '/' + location.ASLODESCR;
-        this.parentLocationCodes.push(location.ASLOIDPARENT || '');
         this.selectAssetLocationTreeview(code || '');
       }
     } else {
       // go back to previous path step
-      let pathParts = this.locationPath.split('/');
-      this.locationPath = '';
-      for (let i = 1; i < pathParts.length - 1; i++) {
-        this.locationPath += '/' + pathParts[i];
-      }
-      this.selectAssetLocationTreeview(this.parentLocationCodes.pop() || '');
+      this.selectAssetLocationTreeview(this.goBackLocationCode);
     }
+  }
+
+  private setGoBackLocationCode(locationCode: string): void {
+    if (locationCode === '') this.goBackLocationCode == '';
+    else
+      this.dataManager.getAssetLocation(locationCode).subscribe((loc) => {
+        this.goBackLocationCode = loc.ASLOIDPARENT || '';
+      });
   }
 
   async showAssetLocationDetails() {

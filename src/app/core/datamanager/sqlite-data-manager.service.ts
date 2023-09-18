@@ -90,6 +90,27 @@ export class SQLiteDataManager implements DataManager {
     return this.insertList(list, 'assetLocation');
   }
 
+  getAssetLocationDescriptivePath(ASLOCODE: string): Observable<string> {
+    const observable = new Observable<string>((observer) => {
+      this.refreshAssetLocationsCache().subscribe(() => {
+        let loc = this.cache.getAssetLocation(ASLOCODE);
+        let path = '';
+        if (loc) {
+          path = loc.ASLOIDPATH || '';
+          let ids = path.replace('//', '').split('/');
+          ids.pop(); // removes empty id at the end
+          ids.forEach((id) => {
+            let descr = this.cache.getAssetLocation(id)?.ASLODESCR || '';
+            path = path.replace(id, descr);
+          });
+        }
+        observer.next(path);
+        observer.complete();
+      });
+    });
+    return observable;
+  }
+
   private refreshAssetLocationsCache(): Observable<void> {
     const observable = new Observable<void>((observer) => {
       // does nothing if the cache is still valid

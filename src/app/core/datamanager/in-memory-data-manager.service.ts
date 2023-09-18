@@ -52,6 +52,26 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getAssetLocationDescriptivePath(ASLOCODE: string): Observable<string> {
+    const observable = new Observable<string>((observer) => {
+      let loc = this.assetLocations.find((l) => l.ASLOCODE === ASLOCODE);
+      let path = '';
+      if (loc) {
+        path = loc.ASLOIDPATH || '';
+        let ids = path.replace('//', '').split('/');
+        ids.pop(); // removes empty id at the end
+        ids.forEach((id) => {
+          let otherLoc = this.assetLocations.find((l) => l.ASLOCODE === id);
+          let descr = otherLoc?.ASLODESCR || '';
+          path = path.replace(id, descr);
+        });
+      }
+      observer.next(path);
+      observer.complete();
+    });
+    return observable;
+  }
+
   setAssetLocationList(list: AssetLocation[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.assetLocations = list;

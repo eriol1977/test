@@ -126,7 +126,7 @@
               color="primary"
               disabled="{{wrDisabled}}"
               class="ion-margin-top"
-              (click)="selectAssetLocationTreeview('')"
+              (click)="selectAssetLocationTreeview(wrAssetLocation.ASLOIDPARENT || '')"
               ><ion-icon name="git-merge-outline"></ion-icon
             ></ion-button>
           </ion-item>

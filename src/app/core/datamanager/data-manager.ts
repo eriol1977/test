@@ -16,6 +16,9 @@ export abstract class DataManager {
   abstract getChildrenAssetLocations(
     ASLOIDPARENT: string
   ): Observable<AssetLocation[]>;
+  abstract getAssetLocationDescriptivePath(
+    ASLOCODE: string
+  ): Observable<string>;
   abstract setAssetLocationList(list: AssetLocation[]): Observable<void>;
   abstract getClassificationsList(): Observable<Classification[]>;
   abstract getClassification(CLASCODE: string): Observable<Classification>;
