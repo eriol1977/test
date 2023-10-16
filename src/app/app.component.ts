@@ -27,6 +27,11 @@ export class AppComponent {
       url: '/dbtester',
       icon: 'file-tray-stacked',
     },
+    {
+      title: 'WS Tester',
+      url: '/wstester',
+      icon: 'earth',
+    },
   ];
 
   public menuType: string = 'overlay';

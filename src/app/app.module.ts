@@ -25,6 +25,7 @@ import { SQLiteService } from './core/services/sqlite.service';
 import { InitializeAppService } from './core/services/initialize.app.service';
 import { SQLiteDataManager } from './core/datamanager/sqlite-data-manager.service';
 import { environment } from 'src/environments/environment';
+import { AESService } from './core/services/aes.service';
 
 export function initializeFactory(init: InitializeAppService) {
   return () => init.initializeApp();
@@ -51,6 +52,7 @@ export function initializeFactory(init: InitializeAppService) {
     DbnameVersionService,
     SQLiteService,
     InitializeAppService,
+    AESService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeFactory,

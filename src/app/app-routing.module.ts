@@ -37,6 +37,10 @@ const routes: Routes = [
     path: 'dbtester',
     loadChildren: () => import('./dbtester/dbtester.module').then( m => m.DBTesterPageModule)
   },
+  {
+    path: 'wstester',
+    loadChildren: () => import('./wstester/wstester.module').then( m => m.WSTesterPageModule)
+  },
 ];
 
 @NgModule({

@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>WSTester</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" scrollY="">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Username"
+          labelPlacement="stacked"
+          [(ngModel)]="username"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Password"
+          labelPlacement="stacked"
+          [(ngModel)]="password"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Company"
+          labelPlacement="stacked"
+          [(ngModel)]="company"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" (click)="displayToken()"
+          >GET TOKEN</ion-button
+        >
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <br />
+        <ion-textarea
+          *ngIf="getTokenResult"
+          style="font-size: small"
+          value="{{getTokenResult}}"
+          rows="25"
+        >
+        </ion-textarea>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
