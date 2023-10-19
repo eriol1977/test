@@ -13,9 +13,9 @@
       <ion-col>
         <ion-input
           type="text"
-          label="Username"
+          label="Service Username"
           labelPlacement="stacked"
-          [(ngModel)]="username"
+          [(ngModel)]="serviceUsername"
           [clearInput]="true"
         >
         </ion-input> </ion-col
@@ -24,9 +24,9 @@
       <ion-col>
         <ion-input
           type="text"
-          label="Password"
+          label="Service Password"
           labelPlacement="stacked"
-          [(ngModel)]="password"
+          [(ngModel)]="servicePassword"
           [clearInput]="true"
         >
         </ion-input> </ion-col
@@ -49,14 +49,51 @@
         >
       </ion-col>
     </ion-row>
-    <ion-row>
+    <ion-row *ngIf="getTokenResult">
       <ion-col>
         <br />
         <ion-textarea
-          *ngIf="getTokenResult"
           style="font-size: small"
           value="{{getTokenResult}}"
-          rows="25"
+          rows="7"
+        >
+        </ion-textarea>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Username"
+          labelPlacement="stacked"
+          [(ngModel)]="username"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Password"
+          labelPlacement="stacked"
+          [(ngModel)]="password"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-button expand="full" (click)="testToken()">TEST LOGIN</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="testTokenResult">
+      <ion-col>
+        <br />
+        <ion-textarea
+          style="font-size: small"
+          value="{{testTokenResult}}"
+          rows="7"
         >
         </ion-textarea>
       </ion-col>

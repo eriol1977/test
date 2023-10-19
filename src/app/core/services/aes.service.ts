@@ -9,6 +9,7 @@ export class AESService {
     'a3NlJCRyJXBwZGd0IWM0NQ=='
   );
   private ENCRYPTION_IV = CryptoJS.enc.Base64.parse('WmVJQjY3JCE9LmVSP3NhNw==');
+  public SEPARATOR: string = '$||$';
 
   encryptStr(str: string): string {
     // Psw Encryption in AES MODE with Key and Iv method (AES/CBC/PKS7Padding)
