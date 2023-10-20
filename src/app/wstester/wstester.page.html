@@ -98,5 +98,39 @@
         </ion-textarea>
       </ion-col>
     </ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Query Id"
+          labelPlacement="stacked"
+          [(ngModel)]="queryId"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="Filters"
+          labelPlacement="stacked"
+          [(ngModel)]="queryFilters"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-button expand="full" (click)="query()">TEST QUERY</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="queryResult">
+      <ion-col>
+        <br />
+        <ion-textarea style="font-size: small" value="{{queryResult}}" rows="7">
+        </ion-textarea>
+      </ion-col>
+    </ion-row>
   </ion-grid>
 </ion-content>

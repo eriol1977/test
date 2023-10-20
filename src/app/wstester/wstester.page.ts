@@ -13,9 +13,9 @@ import { Observable, catchError, of, tap } from 'rxjs';
   styleUrls: ['./wstester.page.scss'],
 })
 export class WSTesterPage implements OnInit {
-  BASE_URL: string =
-    'https://mcm.lab-001.arribatecmarine.com/MCM_EVO_310_SHIP/rest';
-  //BASE_URL: string = 'http://localhost:8080/MCM_3_1/rest';
+  //BASE_URL: string =
+  //  'https://mcm.lab-001.arribatecmarine.com/MCM_EVO_310_SHIP/rest';
+  BASE_URL: string = 'http://localhost:8080/MCM_3_1/rest';
 
   serviceUsername: string = 'MOBILE_MCM';
   servicePassword: string = 'MOBILE_MCM';
@@ -24,12 +24,16 @@ export class WSTesterPage implements OnInit {
   testTokenResult: string = '';
   username: string = 'carpenter1_vi';
   password: string = 'IB1234';
+  queryId: string = '9';
+  queryFilters: string = '';
+  queryResult: string = '';
 
   constructor(private http: HttpClient, private aes: AESService) {}
 
   ngOnInit() {}
 
   displayToken(): void {
+    this.getTokenResult = '';
     this.getToken().subscribe((token) => (this.getTokenResult = token));
   }
 
@@ -56,6 +60,7 @@ export class WSTesterPage implements OnInit {
   }
 
   testToken(): void {
+    this.testTokenResult = '';
     this.doTestToken().subscribe((res) => (this.testTokenResult = res));
   }
 
@@ -78,6 +83,34 @@ export class WSTesterPage implements OnInit {
         `${this.username}${this.aes.SEPARATOR}${this.password}`
       )
     );
+  }
+
+  query(): void {
+    this.queryResult = '';
+    this.doQuery().subscribe((res) => (this.queryResult = JSON.stringify(res)));
+  }
+
+  /**
+   * Es. pFilters:
+   * 0$||$$||$$||$$||$2023-04-01 00:00:00.0$||$$||$ (records with update time >= than the informed timestamp)
+   * 0$||$$||$$||$100$||$$||$$||$ (the first 100 records)
+   * 0$||$$||$$||$$||$$||$7$||$ (the exact record with RECORDCOUNTER field == 7)
+   * 0$||$1004$||$$||$$||$$||$7$||$ (applies extra filters defined in mm_export_filter for FILTERUSERCODE 1004)
+   * 0$||$$||$1016$||$$||$$||$7$||$ (applies extra filters defined in mm_export_filter for FILTERUSERGROUPCODE 1016)
+   * Obs: the first parameter can be 0 (don't trim result) or 1 (trim result)
+   */
+  doQuery(): Observable<any> {
+    return this.http
+      .get(
+        `${this.BASE_URL}/query?pToken=${encodeURIComponent(
+          this.getTokenResult
+        )}&pQueryId=${encodeURIComponent(
+          this.aes.encryptStr(this.queryId)
+        )}&pFilters=${encodeURIComponent(
+          this.aes.encryptStr(this.queryFilters)
+        )}`
+      )
+      .pipe(catchError(this.handleError('Test Token')));
   }
 
   private handleError<T>(operation = 'operation', result?: T) {
