@@ -9,6 +9,9 @@
 
 <ion-content [fullscreen]="true" scrollY="">
   <ion-grid>
+    <ion-item-divider>
+      <ion-label> GET TOKEN </ion-label>
+    </ion-item-divider>
     <ion-row>
       <ion-col>
         <ion-input
@@ -55,11 +58,16 @@
         <ion-textarea
           style="font-size: small"
           value="{{getTokenResult}}"
+          label="Result Token"
+          labelPlacement="stacked"
           rows="7"
         >
         </ion-textarea>
       </ion-col>
     </ion-row>
+    <ion-item-divider *ngIf="getTokenResult">
+      <ion-label> VALIDATE USER </ion-label>
+    </ion-item-divider>
     <ion-row *ngIf="getTokenResult">
       <ion-col>
         <ion-input
@@ -84,7 +92,9 @@
     ></ion-row>
     <ion-row *ngIf="getTokenResult">
       <ion-col>
-        <ion-button expand="full" (click)="testToken()">TEST LOGIN</ion-button>
+        <ion-button expand="full" (click)="testToken()"
+          >VALIDATE USER</ion-button
+        >
       </ion-col>
     </ion-row>
     <ion-row *ngIf="testTokenResult">
@@ -93,11 +103,16 @@
         <ion-textarea
           style="font-size: small"
           value="{{testTokenResult}}"
+          label="Result"
+          labelPlacement="stacked"
           rows="7"
         >
         </ion-textarea>
       </ion-col>
     </ion-row>
+    <ion-item-divider *ngIf="getTokenResult">
+      <ion-label> TEST QUERY </ion-label>
+    </ion-item-divider>
     <ion-row *ngIf="getTokenResult">
       <ion-col>
         <ion-input
@@ -128,7 +143,13 @@
     <ion-row *ngIf="queryResult">
       <ion-col>
         <br />
-        <ion-textarea style="font-size: small" value="{{queryResult}}" rows="7">
+        <ion-textarea
+          style="font-size: small"
+          value="{{queryResult}}"
+          label="Result"
+          labelPlacement="stacked"
+          rows="7"
+        >
         </ion-textarea>
       </ion-col>
     </ion-row>

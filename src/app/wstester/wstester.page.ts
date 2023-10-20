@@ -15,7 +15,7 @@ import { Observable, catchError, of, tap } from 'rxjs';
 export class WSTesterPage implements OnInit {
   //BASE_URL: string =
   //  'https://mcm.lab-001.arribatecmarine.com/MCM_EVO_310_SHIP/rest';
-  BASE_URL: string = 'http://localhost:8080/MCM_3_1/rest';
+  BASE_URL: string = 'http://localhost:8080/MCM_3_2/rest';
 
   serviceUsername: string = 'MOBILE_MCM';
   servicePassword: string = 'MOBILE_MCM';
