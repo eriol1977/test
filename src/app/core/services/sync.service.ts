@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { throwError } from 'rxjs/internal/observable/throwError';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import {
   AssetLocation,
   Classification,
@@ -50,19 +55,21 @@ export class SyncService {
         })
         .then(() => {
           this.getToken().subscribe(() => {
-            const ops: Observable<any>[] = [];
+            this.validateUser().subscribe(() => {
+              const ops: Observable<any>[] = [];
 
-            ops.push(this.exportAll());
+              ops.push(this.exportAll());
 
-            // the initial import is done only if there is no data yet
-            this.dataManager.hasMasterData().subscribe((result) => {
-              if (!result) ops.push(this.importAll());
+              // the initial import is done only if there is no data yet
+              this.dataManager.hasMasterData().subscribe((result) => {
+                if (!result) ops.push(this.importAll());
 
-              forkJoin(ops).subscribe(() => {
-                this.token = '';
-                console.log('Synchronization completed');
-                observer.next();
-                observer.complete();
+                forkJoin(ops).subscribe(() => {
+                  this.token = '';
+                  console.log('Synchronization completed');
+                  observer.next();
+                  observer.complete();
+                });
               });
             });
           });
@@ -84,8 +91,8 @@ export class SyncService {
       imports.push(this.importProblemsList());
       imports.push(this.importPersonnelList());
 
-      forkJoin(imports).subscribe(
-        ([
+      forkJoin(imports).subscribe({
+        next: ([
           assetLocationData,
           classificationData,
           componentsData,
@@ -148,8 +155,11 @@ export class SyncService {
                     });
                 });
             });
-        }
-      );
+        },
+        error: (e) => {
+          this.handleError(e);
+        },
+      });
     });
     return observable;
   }
@@ -177,8 +187,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Asset Locations imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);
-        }),
-        catchError(this.handleError<AssetLocation[]>('Get asset locations', []))
+        })
       );
   }
 
@@ -190,10 +199,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Classifications imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_CLASSIFICATIONS);
-        }),
-        catchError(
-          this.handleError<Classification[]>('Get classifications', [])
-        )
+        })
       );
   }
 
@@ -210,8 +216,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Components imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_COMPONENTS);
-        }),
-        catchError(this.handleError<ComponentAsset[]>('Get components', []))
+        })
       );
   }
 
@@ -223,10 +228,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Component Problems imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_COMPONENT_PROBLEMS);
-        }),
-        catchError(
-          this.handleError<ComponentProblem[]>('Get component problems', [])
-        )
+        })
       );
   }
 
@@ -244,8 +246,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Problems imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_PROBLEMS);
-        }),
-        catchError(this.handleError<Problem[]>('Get problems', []))
+        })
       );
   }
 
@@ -262,8 +263,7 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Personnel imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
-        }),
-        catchError(this.handleError<Personnel[]>('Get personnel', []))
+        })
       );
   }
 
@@ -272,50 +272,82 @@ export class SyncService {
   import(importType: ImportType): Observable<any[]> {
     const observable = new Observable<any>((observer) => {
       this.getToken().subscribe(() => {
-        switch (importType) {
-          case ImportType.ASSET_LOCATION:
-            this.importAssetLocationList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-          case ImportType.CLASSIFICATION:
-            this.importClassificationsList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-          case ImportType.COMPONENT:
-            this.importComponentsList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-          case ImportType.COMPONENT_PROBLEM:
-            this.importComponentProblemsList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-          case ImportType.PROBLEM:
-            this.importProblemsList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-          case ImportType.PERSONNEL:
-            this.importPersonnelList().subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-        }
+        this.validateUser().subscribe(() => {
+          switch (importType) {
+            case ImportType.ASSET_LOCATION:
+              this.importAssetLocationList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ImportType.CLASSIFICATION:
+              this.importClassificationsList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ImportType.COMPONENT:
+              this.importComponentsList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ImportType.COMPONENT_PROBLEM:
+              this.importComponentProblemsList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ImportType.PROBLEM:
+              this.importProblemsList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ImportType.PERSONNEL:
+              this.importPersonnelList().subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+          }
+        });
       });
     });
     return observable;
@@ -351,10 +383,15 @@ export class SyncService {
             const exportWR = this.exportWorkRequest(wr);
             obsWR.push(exportWR);
           }
-          forkJoin(obsWR).subscribe(() => {
-            console.log('Work Requests exported');
-            observer.next();
-            observer.complete();
+          forkJoin(obsWR).subscribe({
+            next: () => {
+              console.log('Work Requests exported');
+              observer.next();
+              observer.complete();
+            },
+            error: (e) => {
+              this.handleError(e);
+            },
           });
         } else {
           console.log('No Work Requests to export');
@@ -384,8 +421,7 @@ export class SyncService {
           this.dataManager.updateWorkRequest(workRequest).subscribe((wr) => {
             this.loadingService.hide();
           });
-        }),
-        catchError(this.handleError<WorkRequest>('Add Work Request'))
+        })
       );
   }
 
@@ -394,15 +430,22 @@ export class SyncService {
   export(exportType: ExportType, record: any): Observable<any> {
     const observable = new Observable<any>((observer) => {
       this.getToken().subscribe(() => {
-        switch (exportType) {
-          case ExportType.WR:
-            this.exportWorkRequest(record).subscribe((res) => {
-              this.token = '';
-              observer.next(res);
-              observer.complete();
-            });
-            break;
-        }
+        this.validateUser().subscribe(() => {
+          switch (exportType) {
+            case ExportType.WR:
+              this.exportWorkRequest(record).subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+          }
+        });
       });
     });
     return observable;
@@ -412,31 +455,29 @@ export class SyncService {
 
   private getToken(): Observable<string> {
     const observable = new Observable<string>((observer) => {
-      if (this.token !== '') {
-        observer.next(this.token);
-        observer.complete();
-      } else {
-        this.doGetToken().subscribe((res) => {
+      this.doGetToken().subscribe({
+        next: (res) => {
           this.token = res.trim();
           observer.next(this.token);
           observer.complete();
-        });
-      }
+        },
+        error: (e) => {
+          this.handleError(e);
+        },
+      });
     });
     return observable;
   }
 
   private doGetToken(): Observable<any> {
-    return this.http
-      .get(
-        `${
-          environment.mcmURL
-        }/rest/gettoken?pToken=${this.prepareTokenForRequest()}`,
-        {
-          responseType: 'text',
-        }
-      )
-      .pipe(catchError(this.handleError('Get Token')));
+    return this.http.get(
+      `${
+        environment.mcmURL
+      }/rest/gettoken?pToken=${this.prepareTokenForRequest()}`,
+      {
+        responseType: 'text',
+      }
+    );
   }
 
   private prepareTokenForRequest(): string {
@@ -444,20 +485,54 @@ export class SyncService {
     return encodeURIComponent(
       this.aes.encryptStr(
         environment.serviceUser +
-          '$||$' +
+          this.aes.SEPARATOR +
           environment.servicePassword +
-          '$||$' +
+          this.aes.SEPARATOR +
           environment.serviceCompany +
-          '$||$'
+          this.aes.SEPARATOR
       )
     );
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      this.toastService.showError(error.message);
-      console.log(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
+  ///////////////////////// USER VALIDATION //////////////////////////////
+
+  private validateUser(): Observable<any> {
+    const observable = new Observable<any>((observer) => {
+      this.doValidateUser().subscribe({
+        next: () => {
+          observer.next(this.token);
+          observer.complete();
+        },
+        error: (e) => {
+          this.handleError(e);
+        },
+      });
+    });
+    return observable;
+  }
+
+  private doValidateUser(): Observable<any> {
+    return this.http.get(
+      `${environment.mcmURL}/rest/validate?pToken=${encodeURIComponent(
+        this.token
+      )}&pParam=${this.prepareUserInfoForRequest()}`,
+      {
+        responseType: 'text',
+      }
+    );
+  }
+
+  private prepareUserInfoForRequest(): string {
+    // must be URI encoded before sending, to avoid decrypting errors on the other side
+    return encodeURIComponent(
+      this.aes.encryptStr(
+        environment.loggedUser + this.aes.SEPARATOR + environment.loggedPassword
+      )
+    );
+  }
+
+  private handleError(e: HttpErrorResponse) {
+    this.toastService.showError(e.error);
+    this.loadingService.hide();
   }
 }

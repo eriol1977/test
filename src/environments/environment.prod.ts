@@ -7,4 +7,6 @@ export const environment = {
   serviceUser: 'MOBILE_MCM',
   servicePassword: 'MOBILE_MCM',
   serviceCompany: '001',
+  loggedUser: 'carpenter1_vi',
+  loggedPassword: 'IB1234',
 };
