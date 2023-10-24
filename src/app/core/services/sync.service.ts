@@ -12,31 +12,34 @@ import {
   Problem,
   SyncStatus,
   Status,
+  ExportType,
+  ImportType,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
 import { DataManager } from '../datamanager/data-manager';
 import { Msg } from 'src/app/common/models';
+import { AESService } from './aes.service';
+import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class SyncService {
-  URL: string =
-    'https://mcm.lab-001.arribatecmarine.com/MCM_EVO_310_SHIP/wrapi';
-
   // prettier-ignore
-  httpHeader = {
+  private httpHeader = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ' + btoa('MOBILE_MCM:MOBILE_MCM'),
+      'Content-Type': 'application/json'
     }),
   };
+
+  private token: string = '';
 
   constructor(
     private http: HttpClient,
     private toastService: ToastService,
     private loadingService: LoaderService,
-    private dataManager: DataManager
+    private dataManager: DataManager,
+    private aes: AESService
   ) {}
 
   synchronize(): Observable<void> {
@@ -46,18 +49,21 @@ export class SyncService {
           message: 'Synchronization...',
         })
         .then(() => {
-          const ops: Observable<any>[] = [];
+          this.getToken().subscribe(() => {
+            const ops: Observable<any>[] = [];
 
-          ops.push(this.exportAll());
+            ops.push(this.exportAll());
 
-          // the initial import is done only if there is no data yet
-          this.dataManager.hasMasterData().subscribe((result) => {
-            if (!result) ops.push(this.importAll());
+            // the initial import is done only if there is no data yet
+            this.dataManager.hasMasterData().subscribe((result) => {
+              if (!result) ops.push(this.importAll());
 
-            forkJoin(ops).subscribe(() => {
-              console.log('Synchronization completed');
-              observer.next();
-              observer.complete();
+              forkJoin(ops).subscribe(() => {
+                this.token = '';
+                console.log('Synchronization completed');
+                observer.next();
+                observer.complete();
+              });
             });
           });
         });
@@ -77,6 +83,7 @@ export class SyncService {
       imports.push(this.importComponentProblemsList());
       imports.push(this.importProblemsList());
       imports.push(this.importPersonnelList());
+
       forkJoin(imports).subscribe(
         ([
           assetLocationData,
@@ -147,10 +154,18 @@ export class SyncService {
     return observable;
   }
 
+  private buildQueryURL(queryId: string, filters: string): string {
+    return `${environment.mcmURL}/rest/query?pToken=${encodeURIComponent(
+      this.token
+    )}&pQueryId=${encodeURIComponent(
+      this.aes.encryptStr(queryId)
+    )}&pFilters=${encodeURIComponent(this.aes.encryptStr(filters))}`;
+  }
+
   importAssetLocationList(): Observable<AssetLocation[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);
     return this.http
-      .get<AssetLocation[]>(`${this.URL}/4002`, this.httpHeader)
+      .get<AssetLocation[]>(this.buildQueryURL('4002', ''), this.httpHeader)
       .pipe(
         map((locArray) =>
           locArray
@@ -170,7 +185,7 @@ export class SyncService {
   importClassificationsList(): Observable<Classification[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_CLASSIFICATIONS);
     return this.http
-      .get<Classification[]>(`${this.URL}/4001`, this.httpHeader)
+      .get<Classification[]>(this.buildQueryURL('4001', ''), this.httpHeader)
       .pipe(
         tap((array) => {
           console.log(`${array.length} Classifications imported`);
@@ -185,7 +200,7 @@ export class SyncService {
   importComponentsList(): Observable<ComponentAsset[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENTS);
     return this.http
-      .get<ComponentAsset[]>(`${this.URL}/4003`, this.httpHeader)
+      .get<ComponentAsset[]>(this.buildQueryURL('4003', ''), this.httpHeader)
       .pipe(
         map((compArray) =>
           compArray.sort((comp1, comp2) =>
@@ -203,7 +218,7 @@ export class SyncService {
   importComponentProblemsList(): Observable<ComponentProblem[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENT_PROBLEMS);
     return this.http
-      .get<ComponentProblem[]>(`${this.URL}/4005`, this.httpHeader)
+      .get<ComponentProblem[]>(this.buildQueryURL('4005', ''), this.httpHeader)
       .pipe(
         tap((array) => {
           console.log(`${array.length} Component Problems imported`);
@@ -217,34 +232,93 @@ export class SyncService {
 
   importProblemsList(): Observable<Problem[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_PROBLEMS);
-    return this.http.get<Problem[]>(`${this.URL}/4004`, this.httpHeader).pipe(
-      map((probArray) =>
-        probArray.filter(
-          (prob) => prob.CANCELLED !== 'X' && prob.PROBISSYMPTOM?.trim() === 'Y'
-        )
-      ), // filters active and is symptom
-      tap((array) => {
-        console.log(`${array.length} Problems imported`);
-        this.loadingService.removeMessage(Msg.MSG_IMPORT_PROBLEMS);
-      }),
-      catchError(this.handleError<Problem[]>('Get problems', []))
-    );
+    return this.http
+      .get<Problem[]>(this.buildQueryURL('4004', ''), this.httpHeader)
+      .pipe(
+        map((probArray) =>
+          probArray.filter(
+            (prob) =>
+              prob.CANCELLED !== 'X' && prob.PROBISSYMPTOM?.trim() === 'Y'
+          )
+        ), // filters active and is symptom
+        tap((array) => {
+          console.log(`${array.length} Problems imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_PROBLEMS);
+        }),
+        catchError(this.handleError<Problem[]>('Get problems', []))
+      );
   }
 
   importPersonnelList(): Observable<Personnel[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_PERSONNEL);
-    return this.http.get<Personnel[]>(`${this.URL}/9`, this.httpHeader).pipe(
-      map((persArray) =>
-        persArray.sort((pers1, pers2) =>
-          (pers1.PERSONNAME || '') > (pers2.PERSONNAME || '') ? 1 : -1
-        )
-      ), //orders by name
-      tap((array) => {
-        console.log(`${array.length} Personnel imported`);
-        this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
-      }),
-      catchError(this.handleError<Personnel[]>('Get personnel', []))
-    );
+    return this.http
+      .get<Personnel[]>(this.buildQueryURL('9', ''), this.httpHeader)
+      .pipe(
+        map((persArray) =>
+          persArray.sort((pers1, pers2) =>
+            (pers1.PERSONNAME || '') > (pers2.PERSONNAME || '') ? 1 : -1
+          )
+        ), //orders by name
+        tap((array) => {
+          console.log(`${array.length} Personnel imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
+        }),
+        catchError(this.handleError<Personnel[]>('Get personnel', []))
+      );
+  }
+
+  // to be called from outside SyncService
+  // (automatically provides the necessary token)
+  import(importType: ImportType): Observable<any[]> {
+    const observable = new Observable<any>((observer) => {
+      this.getToken().subscribe(() => {
+        switch (importType) {
+          case ImportType.ASSET_LOCATION:
+            this.importAssetLocationList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+          case ImportType.CLASSIFICATION:
+            this.importClassificationsList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+          case ImportType.COMPONENT:
+            this.importComponentsList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+          case ImportType.COMPONENT_PROBLEM:
+            this.importComponentProblemsList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+          case ImportType.PROBLEM:
+            this.importProblemsList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+          case ImportType.PERSONNEL:
+            this.importPersonnelList().subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+        }
+      });
+    });
+    return observable;
   }
 
   ///////////////////////// EXPORT //////////////////////////////
@@ -297,7 +371,13 @@ export class SyncService {
       message: Msg.MSG_EXPORT_WORK_REQUEST,
     });
     return this.http
-      .post<WorkRequest>(`${this.URL}/`, workRequest, this.httpHeader)
+      .post<WorkRequest>(
+        `${environment.mcmURL}/rest/wr?pToken=${encodeURIComponent(
+          this.token
+        )}`,
+        workRequest,
+        this.httpHeader
+      )
       .pipe(
         tap(() => {
           workRequest.SYNC = SyncStatus.EXPORTED;
@@ -307,6 +387,70 @@ export class SyncService {
         }),
         catchError(this.handleError<WorkRequest>('Add Work Request'))
       );
+  }
+
+  // to be called from outside SyncService
+  // (automatically provides the necessary token)
+  export(exportType: ExportType, record: any): Observable<any> {
+    const observable = new Observable<any>((observer) => {
+      this.getToken().subscribe(() => {
+        switch (exportType) {
+          case ExportType.WR:
+            this.exportWorkRequest(record).subscribe((res) => {
+              this.token = '';
+              observer.next(res);
+              observer.complete();
+            });
+            break;
+        }
+      });
+    });
+    return observable;
+  }
+
+  ///////////////////////// TOKEN //////////////////////////////
+
+  private getToken(): Observable<string> {
+    const observable = new Observable<string>((observer) => {
+      if (this.token !== '') {
+        observer.next(this.token);
+        observer.complete();
+      } else {
+        this.doGetToken().subscribe((res) => {
+          this.token = res.trim();
+          observer.next(this.token);
+          observer.complete();
+        });
+      }
+    });
+    return observable;
+  }
+
+  private doGetToken(): Observable<any> {
+    return this.http
+      .get(
+        `${
+          environment.mcmURL
+        }/rest/gettoken?pToken=${this.prepareTokenForRequest()}`,
+        {
+          responseType: 'text',
+        }
+      )
+      .pipe(catchError(this.handleError('Get Token')));
+  }
+
+  private prepareTokenForRequest(): string {
+    // must be URI encoded before sending, to avoid decrypting errors on the other side
+    return encodeURIComponent(
+      this.aes.encryptStr(
+        environment.serviceUser +
+          '$||$' +
+          environment.servicePassword +
+          '$||$' +
+          environment.serviceCompany +
+          '$||$'
+      )
+    );
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

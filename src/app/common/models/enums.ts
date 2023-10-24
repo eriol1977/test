@@ -9,3 +9,16 @@ export enum SyncStatus {
   EXPORTED = 2,
   DRAFT = 3,
 }
+
+export enum ImportType {
+  ASSET_LOCATION = 'ASSET_LOCATION',
+  CLASSIFICATION = 'CLASSIFICATION',
+  COMPONENT = 'COMPONENT',
+  COMPONENT_PROBLEM = 'COMPONENT_PROBLEM',
+  PROBLEM = 'PROBLEM',
+  PERSONNEL = 'PERSONNEL',
+}
+
+export enum ExportType {
+  WR = 'WR',
+}

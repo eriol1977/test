@@ -15,6 +15,7 @@ import {
   Problem,
   SyncStatus,
   YES_NO,
+  ExportType,
 } from '../../common/models';
 import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
@@ -518,7 +519,7 @@ export class NewWorkRequestPage implements OnInit {
     // exports WR as soon as it's been created and added to the data store,
     // but only if it's in COMPLETED state
     if (workRequest.WORESTATCODE === Status.COMPLETED) {
-      this.syncService.exportWorkRequest(workRequest).subscribe(() => {
+      this.syncService.export(ExportType.WR, workRequest).subscribe(() => {
         this.toastService.showSuccess('Work Request exported');
         this.clearForm();
         this.router.navigate(['/work-request/work-requests']);

@@ -3,4 +3,8 @@ export const environment = {
   useSQLite: true,
   databaseName: 'MNT_DB_',
   databaseVersion: 1,
+  mcmURL: 'http://localhost:8080/MCM_3_2',
+  serviceUser: 'MOBILE_MCM',
+  servicePassword: 'MOBILE_MCM',
+  serviceCompany: '001',
 };
