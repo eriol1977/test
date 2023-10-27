@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SelectOption, TABLES } from '../common/models';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
 import { LoaderService } from '../core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dbtester',
@@ -24,7 +25,8 @@ export class DBTesterPage implements OnInit {
 
   constructor(
     private dataManager: DataManager,
-    private loadingService: LoaderService
+    private loadingService: LoaderService,
+    private router: Router
   ) {}
 
   ngOnInit() {}
@@ -207,5 +209,9 @@ export class DBTesterPage implements OnInit {
     this.result = textResult;
     console.log(textResult);
     this.loadingService.hide();
+  }
+
+  goBack(): void {
+    this.router.navigate(['/landing']);
   }
 }

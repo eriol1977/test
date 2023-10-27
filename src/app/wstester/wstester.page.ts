@@ -6,6 +6,7 @@ import {
 import { Component, OnInit } from '@angular/core';
 import { AESService } from '../core/services/aes.service';
 import { Observable, catchError, of, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-wstester',
@@ -28,7 +29,11 @@ export class WSTesterPage implements OnInit {
   queryFilters: string = '';
   queryResult: string = '';
 
-  constructor(private http: HttpClient, private aes: AESService) {}
+  constructor(
+    private http: HttpClient,
+    private aes: AESService,
+    private router: Router
+  ) {}
 
   ngOnInit() {}
 
@@ -119,5 +124,9 @@ export class WSTesterPage implements OnInit {
       alert(`${operation} failed: ${errMsg}`);
       return of(result as T);
     };
+  }
+
+  goBack(): void {
+    this.router.navigate(['/landing']);
   }
 }

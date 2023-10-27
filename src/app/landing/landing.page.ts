@@ -18,4 +18,12 @@ export class LandingPage implements OnInit {
   goToWorkRequests(): void {
     this.router.navigate(['/work-request/work-requests']);
   }
+
+  goToDBTester(): void {
+    this.router.navigate(['/dbtester']);
+  }
+
+  goToWSTester(): void {
+    this.router.navigate(['/wstester']);
+  }
 }
