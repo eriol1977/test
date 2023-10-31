@@ -152,3 +152,23 @@ export interface Classification {
   UPDATEOFFSET?: string;
   RECORDCOUNTER?: string;
 }
+
+export interface REQHeader {
+  IDDOC: string;
+  NRDOC: string;
+  DSDOC: string;
+  DTDOC: string;
+  DSUNIT: string;
+  CDCURRENCY: string;
+  NEXTSTATUSES: string;
+  USERS: string;
+}
+
+export interface REQRow {
+  IDDOC: string;
+  CPROWNUM: string;
+  IDITEM: string;
+  DSITEM: string;
+  QTITEM: string;
+  CDUOM: string;
+}

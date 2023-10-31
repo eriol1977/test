@@ -150,6 +150,25 @@ export const versionUpgrades = [
         CREATIONOFFSET varchar,
         SYNC integer
         );`,
+      `CREATE TABLE reqHeaders(
+        IDDOC varchar PRIMARY KEY NOT NULL,
+        NRDOC varchar,
+        DSDOC varchar,
+        DTDOC varchar,
+        DSUNIT varchar,
+        CDCURRENCY varchar,
+        NEXTSTATUSES varchar,
+        USERS varchar
+        );`,
+      `CREATE TABLE reqRows(
+        IDDOC varchar NOT NULL,
+        CPROWNUM varchar NOT NULL,
+        IDITEM varchar,
+        DSITEM varchar,
+        QTITEM varchar,
+        CDUOM varchar,
+        PRIMARY KEY (IDDOC, CPROWNUM)
+        );`,
     ],
   },
 ];

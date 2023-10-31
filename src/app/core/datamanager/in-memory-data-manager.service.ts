@@ -9,6 +9,8 @@ import {
   Problem,
   Personnel,
   WorkRequest,
+  REQHeader,
+  REQRow,
 } from 'src/app/common/models';
 
 @Injectable({
@@ -22,6 +24,8 @@ export class InMemoryDataManager implements DataManager {
   problems: Problem[] = [];
   personnel: Personnel[] = [];
   workRequests: WorkRequest[] = [];
+  REQHeaders: REQHeader[] = [];
+  REQRows: REQRow[] = [];
 
   constructor() {}
 
@@ -275,6 +279,49 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  getREQHeadersList(): Observable<REQHeader[]> {
+    const observable = new Observable<REQHeader[]>((observer) => {
+      observer.next(this.REQHeaders);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getREQHeader(IDDOC: string): Observable<REQHeader> {
+    const observable = new Observable<REQHeader>((observer) => {
+      let reqH = this.REQHeaders.find((h) => h.IDDOC === IDDOC);
+      observer.next(reqH);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  setREQHeadersList(list: REQHeader[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.REQHeaders = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getREQRowsList(): Observable<REQRow[]> {
+    const observable = new Observable<REQRow[]>((observer) => {
+      observer.next(this.REQRows);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  setREQRowsList(list: REQRow[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.REQRows = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
   hasMasterData(): Observable<boolean> {
     const observable = new Observable<boolean>((observer) => {
       let result =
@@ -283,7 +330,9 @@ export class InMemoryDataManager implements DataManager {
         this.components.length > 0 ||
         this.componentsProblems.length > 0 ||
         this.problems.length > 0 ||
-        this.personnel.length > 0;
+        this.personnel.length > 0 ||
+        this.REQHeaders.length > 0 ||
+        this.REQRows.length > 0;
       observer.next(result);
       observer.complete();
     });

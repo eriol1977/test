@@ -23,6 +23,11 @@ export class AppComponent {
       icon: 'list',
     },
     {
+      title: 'REQ Approval',
+      url: '/reqapproval',
+      icon: 'card',
+    },
+    {
       title: 'DB Tester',
       url: '/dbtester',
       icon: 'file-tray-stacked',

@@ -7,6 +7,8 @@ import {
   Problem,
   Personnel,
   WorkRequest,
+  REQHeader,
+  REQRow,
 } from 'src/app/common/models';
 
 @Injectable({
@@ -20,6 +22,8 @@ export class DataCache {
   problems: Problem[] = [];
   personnel: Personnel[] = [];
   workRequests: WorkRequest[] = [];
+  REQHeaders: REQHeader[] = [];
+  REQRows: REQRow[] = [];
 
   constructor() {}
 
@@ -141,5 +145,25 @@ export class DataCache {
 
   setWorkRequests(list: WorkRequest[]): void {
     this.workRequests = list;
+  }
+
+  setREQHeadersList(list: REQHeader[]): void {
+    this.REQHeaders = list;
+  }
+
+  getREQHeadersList(): REQHeader[] {
+    return this.REQHeaders;
+  }
+
+  getREQHeader(IDDOC: string): REQHeader | undefined {
+    return this.REQHeaders.find((h) => h.IDDOC === IDDOC);
+  }
+
+  setREQRowsList(list: REQRow[]): void {
+    this.REQRows = list;
+  }
+
+  getREQRowsList(): REQRow[] {
+    return this.REQRows;
   }
 }

@@ -29,4 +29,6 @@ export const TABLES: SelectOption[] = [
   { value: 'problem', label: 'PROBLEMS' },
   { value: 'personnel', label: 'PERSONNEL' },
   { value: 'workRequest', label: 'WORK REQUESTS' },
+  { value: 'reqHeaders', label: 'REQ HEADERS' },
+  { value: 'reqRows', label: 'REQ ROWS' },
 ];

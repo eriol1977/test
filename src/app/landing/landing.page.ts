@@ -19,6 +19,10 @@ export class LandingPage implements OnInit {
     this.router.navigate(['/work-request/work-requests']);
   }
 
+  goToREQApproval(): void {
+    this.router.navigate(['/reqapproval']);
+  }
+
   goToDBTester(): void {
     this.router.navigate(['/dbtester']);
   }

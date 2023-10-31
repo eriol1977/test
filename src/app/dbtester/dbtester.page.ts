@@ -158,6 +158,24 @@ export class DBTesterPage implements OnInit {
           });
         }
         break;
+      case 'reqHeaders':
+        if (this.recordId === '') {
+          this.dataManager.getREQHeadersList().subscribe((list) => {
+            this.listResult(list);
+          });
+        } else {
+          this.displayResult('Operation not yet implemented!');
+        }
+        break;
+      case 'reqRows':
+        if (this.recordId === '') {
+          this.dataManager.getREQRowsList().subscribe((list) => {
+            this.listResult(list);
+          });
+        } else {
+          this.displayResult('Operation not yet implemented!');
+        }
+        break;
       default:
         this.displayResult('Operation not yet implemented!');
     }

@@ -4,15 +4,15 @@
 
 export const environment = {
   production: false,
-  useSQLite: true,
+  useSQLite: false,
   databaseName: 'MNT_DB_',
   databaseVersion: 1,
-  mcmURL: 'http://localhost:8080/MCM_3_2',
-  serviceUser: 'MOBILE_MCM',
-  servicePassword: 'MOBILE_MCM',
+  mcmURL: 'http://evo-demo:8180/UT_MCM_3_2',
+  serviceUser: 'service',
+  servicePassword: 'SeRvIcE_&%1234',
   serviceCompany: '001',
-  loggedUser: 'carpenter1_vi',
-  loggedPassword: 'IB1234',
+  loggedUser: 'admin',
+  loggedPassword: 'EVO_001',
 };
 
 /*

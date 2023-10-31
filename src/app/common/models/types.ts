@@ -18,3 +18,9 @@ export type WorkRequestItem = {
   PROBDESCR?: string;
   COLOR?: string;
 };
+
+export type DocumentStatus = {
+  code: string;
+  description: string;
+  isCancelled: boolean;
+};

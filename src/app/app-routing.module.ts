@@ -35,11 +35,27 @@ const routes: Routes = [
   },
   {
     path: 'dbtester',
-    loadChildren: () => import('./dbtester/dbtester.module').then( m => m.DBTesterPageModule)
+    loadChildren: () =>
+      import('./dbtester/dbtester.module').then((m) => m.DBTesterPageModule),
   },
   {
     path: 'wstester',
-    loadChildren: () => import('./wstester/wstester.module').then( m => m.WSTesterPageModule)
+    loadChildren: () =>
+      import('./wstester/wstester.module').then((m) => m.WSTesterPageModule),
+  },
+  {
+    path: 'reqapproval',
+    loadChildren: () =>
+      import('./reqapproval/reqapproval.module').then(
+        (m) => m.REQApprovalPageModule
+      ),
+  },
+  {
+    path: 'reqapproval-rows/:id',
+    loadChildren: () =>
+      import('./reqapproval-rows/reqapproval-rows.module').then(
+        (m) => m.REQApprovalRowsPageModule
+      ),
   },
 ];
 

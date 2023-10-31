@@ -10,6 +10,8 @@ import {
   Problem,
   Personnel,
   WorkRequest,
+  REQHeader,
+  REQRow,
 } from 'src/app/common/models';
 import { DbnameVersionService } from '../services/dbname-version.service';
 import { DataCache } from './data-cache.service';
@@ -25,6 +27,8 @@ export class SQLiteDataManager implements DataManager {
   private cache_problem_valid: boolean = false;
   private cache_personnel_valid: boolean = false;
   private cache_work_requests_valid: boolean = false;
+  private cache_req_headers_valid: boolean = false;
+  private cache_req_rows_valid: boolean = false;
 
   constructor(
     private sqliteService: SQLiteService,
@@ -530,6 +534,88 @@ export class SQLiteDataManager implements DataManager {
     return observable;
   }
 
+  ///////////////// REQs ///////////////////////
+
+  getREQHeadersList(): Observable<REQHeader[]> {
+    const observable = new Observable<REQHeader[]>((observer) => {
+      this.refreshREQHeadersCache().subscribe(() => {
+        observer.next(this.cache.getREQHeadersList());
+        observer.complete();
+      });
+    });
+    return observable;
+  }
+
+  getREQHeader(IDDOC: string): Observable<REQHeader> {
+    const observable = new Observable<REQHeader>((observer) => {
+      this.refreshREQHeadersCache().subscribe(() => {
+        observer.next(this.cache.getREQHeader(IDDOC));
+        observer.complete();
+      });
+    });
+    return observable;
+  }
+
+  private refreshREQHeadersCache(): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      // does nothing if the cache is still valid
+      if (this.cache_req_headers_valid) {
+        observer.next();
+        observer.complete();
+      } else {
+        // updates cache using local DB data and validates it
+        this.getList('reqHeaders').subscribe((list) => {
+          this.cache.setREQHeadersList(list);
+          this.cache_req_headers_valid = true;
+          observer.next();
+          observer.complete();
+        });
+      }
+    });
+    return observable;
+  }
+
+  setREQHeadersList(list: REQHeader[]): Observable<void> {
+    // invalidates cache
+    this.cache_req_headers_valid = false;
+    return this.insertList(list, 'reqHeaders');
+  }
+
+  getREQRowsList(): Observable<REQRow[]> {
+    const observable = new Observable<REQRow[]>((observer) => {
+      this.refreshREQRowsCache().subscribe(() => {
+        observer.next(this.cache.getREQRowsList());
+        observer.complete();
+      });
+    });
+    return observable;
+  }
+
+  private refreshREQRowsCache(): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      // does nothing if the cache is still valid
+      if (this.cache_req_rows_valid) {
+        observer.next();
+        observer.complete();
+      } else {
+        // updates cache using local DB data and validates it
+        this.getList('reqRows').subscribe((list) => {
+          this.cache.setREQRowsList(list);
+          this.cache_req_rows_valid = true;
+          observer.next();
+          observer.complete();
+        });
+      }
+    });
+    return observable;
+  }
+
+  setREQRowsList(list: REQRow[]): Observable<void> {
+    // invalidates cache
+    this.cache_req_rows_valid = false;
+    return this.insertList(list, 'reqRows');
+  }
+
   /////////////// GENERIC ///////////////////
 
   hasMasterData(): Observable<boolean> {
@@ -541,6 +627,8 @@ export class SQLiteDataManager implements DataManager {
       reads.push(this.getComponentProblemsList());
       reads.push(this.getProblemsList());
       reads.push(this.getPersonnelList());
+      reads.push(this.getREQHeadersList());
+      reads.push(this.getREQRowsList());
       forkJoin(reads).subscribe(
         ([
           assetLocations,
@@ -549,6 +637,8 @@ export class SQLiteDataManager implements DataManager {
           componentsProblems,
           problems,
           personnel,
+          reqHeaders,
+          reqRows,
         ]) => {
           let result =
             assetLocations.length > 0 ||
@@ -556,7 +646,9 @@ export class SQLiteDataManager implements DataManager {
             components.length > 0 ||
             componentsProblems.length > 0 ||
             problems.length > 0 ||
-            personnel.length > 0;
+            personnel.length > 0 ||
+            reqHeaders.length > 0 ||
+            reqRows.length > 0;
           observer.next(result);
           observer.complete();
         }

@@ -19,6 +19,8 @@ import {
   Status,
   ExportType,
   ImportType,
+  REQHeader,
+  REQRow,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -90,6 +92,8 @@ export class SyncService {
       imports.push(this.importComponentProblemsList());
       imports.push(this.importProblemsList());
       imports.push(this.importPersonnelList());
+      imports.push(this.importREQHeaders());
+      imports.push(this.importREQRows());
 
       forkJoin(imports).subscribe({
         next: ([
@@ -99,6 +103,8 @@ export class SyncService {
           compProblemsData,
           problemsData,
           personnelData,
+          REQHeaders,
+          REQRows,
         ]) => {
           // cannot use forkJoin here, because of transaction issues when using SQLiteDataManager:
           // the set operations cannot be executed in parallel
@@ -146,9 +152,31 @@ export class SyncService {
                                   this.loadingService.removeMessage(
                                     Msg.MSG_SAVE_PERSONNEL
                                   );
-                                  console.log('Import completed');
-                                  observer.next();
-                                  observer.complete();
+
+                                  this.loadingService.addMessage(
+                                    Msg.MSG_SAVE_REQ_HEADERS
+                                  );
+                                  this.dataManager
+                                    .setREQHeadersList(REQHeaders)
+                                    .subscribe(() => {
+                                      this.loadingService.removeMessage(
+                                        Msg.MSG_SAVE_REQ_HEADERS
+                                      );
+
+                                      this.loadingService.addMessage(
+                                        Msg.MSG_SAVE_REQ_ROWS
+                                      );
+                                      this.dataManager
+                                        .setREQRowsList(REQRows)
+                                        .subscribe(() => {
+                                          this.loadingService.removeMessage(
+                                            Msg.MSG_SAVE_REQ_ROWS
+                                          );
+                                          console.log('Import completed');
+                                          observer.next();
+                                          observer.complete();
+                                        });
+                                    });
                                 });
                             });
                         });
@@ -263,6 +291,30 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Personnel imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
+        })
+      );
+  }
+
+  importREQHeaders(): Observable<REQHeader[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_REQ_HEADERS);
+    return this.http
+      .get<REQHeader[]>(this.buildQueryURL('5001', ''), this.httpHeader)
+      .pipe(
+        tap((array) => {
+          console.log(`${array.length} REQ Headers imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_REQ_HEADERS);
+        })
+      );
+  }
+
+  importREQRows(): Observable<REQRow[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_REQ_ROWS);
+    return this.http
+      .get<REQRow[]>(this.buildQueryURL('5002', ''), this.httpHeader)
+      .pipe(
+        tap((array) => {
+          console.log(`${array.length} REQ Rows imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_REQ_ROWS);
         })
       );
   }

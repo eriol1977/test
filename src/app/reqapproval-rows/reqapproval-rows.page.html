@@ -1,0 +1,44 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>REQ Rows</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="primary" fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" scrollY="">
+  <ion-list>
+    <ion-item *ngFor="let row of rows">
+      <ion-grid>
+        <ion-row class="row">
+          <ion-col>
+            <h5>{{row.IDITEM}}</h5>
+            <h6>{{row.DSITEM}}</h6>
+          </ion-col>
+          <ion-col>
+            <ion-input
+              label="Quantity"
+              labelPlacement="stacked"
+              type="number"
+              [(ngModel)]="row.QTITEM"
+            ></ion-input>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
+  <ion-button
+    *ngFor="let status of statusList"
+    expand="full"
+    color="{{status.isCancelled ? 'danger' : 'primary'}}"
+    (click)="changeStatus(status.code)"
+    >{{status.description}}</ion-button
+  >
+</ion-content>

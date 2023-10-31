@@ -1,12 +1,9 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AESService } from '../core/services/aes.service';
 import { Observable, catchError, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-wstester',
@@ -14,17 +11,15 @@ import { Router } from '@angular/router';
   styleUrls: ['./wstester.page.scss'],
 })
 export class WSTesterPage implements OnInit {
-  //BASE_URL: string =
-  //  'https://mcm.lab-001.arribatecmarine.com/MCM_EVO_310_SHIP/rest';
-  BASE_URL: string = 'http://localhost:8080/MCM_3_2/rest';
+  BASE_URL: string = `${environment.mcmURL}/rest`;
 
-  serviceUsername: string = 'MOBILE_MCM';
-  servicePassword: string = 'MOBILE_MCM';
+  serviceUsername: string = environment.serviceUser;
+  servicePassword: string = environment.servicePassword;
   company: string = '001';
   getTokenResult: string = '';
   testTokenResult: string = '';
-  username: string = 'carpenter1_vi';
-  password: string = 'IB1234';
+  username: string = environment.loggedUser;
+  password: string = environment.loggedPassword;
   queryId: string = '9';
   queryFilters: string = '';
   queryResult: string = '';

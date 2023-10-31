@@ -7,6 +7,8 @@ import {
   ComponentProblem,
   Personnel,
   Problem,
+  REQHeader,
+  REQRow,
   WorkRequest,
 } from 'src/app/common/models';
 
@@ -48,4 +50,9 @@ export abstract class DataManager {
   abstract getWorkRequest(IDLIST: string): Observable<WorkRequest>;
   abstract deleteWorkRequest(IDLIST: string): Observable<void>;
   abstract hasMasterData(): Observable<boolean>;
+  abstract getREQHeadersList(): Observable<REQHeader[]>;
+  abstract getREQHeader(IDDOC: string): Observable<REQHeader>;
+  abstract setREQHeadersList(list: REQHeader[]): Observable<void>;
+  abstract getREQRowsList(): Observable<REQRow[]>;
+  abstract setREQRowsList(list: REQRow[]): Observable<void>;
 }
