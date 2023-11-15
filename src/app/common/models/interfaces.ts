@@ -171,4 +171,21 @@ export interface REQRow {
   DSITEM: string;
   QTITEM: string;
   CDUOM: string;
+  CDCOST_CENTER: string;
+  CDACCOUNT: string;
+}
+
+export interface FinancialStruct {
+  IDFINSTRUCT: string;
+  CDUNIT: string;
+  CDCOST_CENTER: string;
+  DSCOST_CENTER: string;
+  CDACCOUNT: string;
+  DSACCOUNT: string;
+  FLTYPE: string;
+  FLNAVIGATION: string;
+  SUSPUNITS: string;
+  PARENTCODE: string;
+  PATHCODE: string;
+  FLCANC: string;
 }

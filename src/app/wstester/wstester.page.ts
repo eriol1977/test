@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AESService } from '../core/services/aes.service';
 import { Observable, catchError, of, tap } from 'rxjs';
@@ -23,6 +23,10 @@ export class WSTesterPage implements OnInit {
   queryId: string = '9';
   queryFilters: string = '';
   queryResult: string = '';
+  postEndpoint: string = 'validatereq';
+  postBody: string =
+    '{"IDAPP": "oighy6trfbacf5d","IDDOC": "HQS000000000191","CDUNIT": "HQS","NRDOC": "HQS-12345","DSDOC": "Diesel engine spare parts","FLSTATUS": "3F","CREATIONUSER": "1024","ROWS": [{"CPROWNUM": "1","IDITEM": "HQS000000000123","CDKEY": "CD-1234A7","CDCOST_CENTER": "100","CDACCOUNT":"5010","QTEXAM":"5","CDUOM": "EA","NTPHASE": "notes notes notes"},{"CPROWNUM": "2","IDITEM": "HQS000000000231","CDKEY": "CD-1287A9","CDCOST_CENTER": "100","CDACCOUNT":"5015","QTEXAM":"3","CDUOM": "BOX","NTPHASE": "notes"}]}';
+  docid: string = '1010000006';
 
   constructor(
     private http: HttpClient,
@@ -105,12 +109,50 @@ export class WSTesterPage implements OnInit {
         `${this.BASE_URL}/query?pToken=${encodeURIComponent(
           this.getTokenResult
         )}&pQueryId=${encodeURIComponent(
-          this.aes.encryptStr(this.queryId)
-        )}&pFilters=${encodeURIComponent(
-          this.aes.encryptStr(this.queryFilters)
-        )}`
+          this.queryId
+        )}&pFilters=${encodeURIComponent(this.queryFilters)}`
       )
       .pipe(catchError(this.handleError('Test Token')));
+  }
+
+  testPost(): void {
+    this.doPost().subscribe((res) => {
+      console.log(res);
+    });
+  }
+
+  private doPost(): Observable<any> {
+    return this.http
+      .post(
+        `${this.BASE_URL}/${this.postEndpoint}?pToken=${encodeURIComponent(
+          this.getTokenResult
+        )}`,
+        JSON.parse(this.postBody),
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+          }),
+          responseType: 'text',
+        }
+      )
+      .pipe(catchError(this.handleError('Test POST')));
+  }
+
+  getAttachment(): void {
+    this.doGetAttachment().subscribe((res) => console.log(res));
+  }
+
+  private doGetAttachment(): Observable<any> {
+    return this.http
+      .get(
+        `${this.BASE_URL}/attach?pToken=${encodeURIComponent(
+          this.getTokenResult
+        )}&pDOCID=${encodeURIComponent(this.docid)}`,
+        {
+          responseType: 'text',
+        }
+      )
+      .pipe(catchError(this.handleError('Get Attachment')));
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

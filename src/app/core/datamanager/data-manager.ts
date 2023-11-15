@@ -5,6 +5,7 @@ import {
   Classification,
   ComponentAsset,
   ComponentProblem,
+  FinancialStruct,
   Personnel,
   Problem,
   REQHeader,
@@ -55,4 +56,14 @@ export abstract class DataManager {
   abstract setREQHeadersList(list: REQHeader[]): Observable<void>;
   abstract getREQRowsList(): Observable<REQRow[]>;
   abstract setREQRowsList(list: REQRow[]): Observable<void>;
+  abstract getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]>;
+  abstract getAccounts(PARENTCODE: string): Observable<FinancialStruct[]>;
+  abstract getFinancialStructRecord(
+    IDFINSTRUCT: string
+  ): Observable<FinancialStruct>;
+  abstract getFinancialStructRecordDescriptivePath(
+    IDFINSTRUCT: string
+  ): Observable<string>;
+  abstract getFinancialStructList(): Observable<FinancialStruct[]>;
+  abstract setFinancialStruct(list: FinancialStruct[]): Observable<void>;
 }

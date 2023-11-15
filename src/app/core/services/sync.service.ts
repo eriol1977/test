@@ -21,6 +21,7 @@ import {
   ImportType,
   REQHeader,
   REQRow,
+  FinancialStruct,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -94,6 +95,7 @@ export class SyncService {
       imports.push(this.importPersonnelList());
       imports.push(this.importREQHeaders());
       imports.push(this.importREQRows());
+      imports.push(this.importFinancialStructure());
 
       forkJoin(imports).subscribe({
         next: ([
@@ -105,6 +107,7 @@ export class SyncService {
           personnelData,
           REQHeaders,
           REQRows,
+          financialStruct,
         ]) => {
           // cannot use forkJoin here, because of transaction issues when using SQLiteDataManager:
           // the set operations cannot be executed in parallel
@@ -172,9 +175,20 @@ export class SyncService {
                                           this.loadingService.removeMessage(
                                             Msg.MSG_SAVE_REQ_ROWS
                                           );
-                                          console.log('Import completed');
-                                          observer.next();
-                                          observer.complete();
+
+                                          this.loadingService.addMessage(
+                                            Msg.MSG_SAVE_FIN_STRUCT
+                                          );
+                                          this.dataManager
+                                            .setFinancialStruct(financialStruct)
+                                            .subscribe(() => {
+                                              this.loadingService.removeMessage(
+                                                Msg.MSG_SAVE_FIN_STRUCT
+                                              );
+                                              console.log('Import completed');
+                                              observer.next();
+                                              observer.complete();
+                                            });
                                         });
                                     });
                                 });
@@ -195,9 +209,9 @@ export class SyncService {
   private buildQueryURL(queryId: string, filters: string): string {
     return `${environment.mcmURL}/rest/query?pToken=${encodeURIComponent(
       this.token
-    )}&pQueryId=${encodeURIComponent(
-      this.aes.encryptStr(queryId)
-    )}&pFilters=${encodeURIComponent(this.aes.encryptStr(filters))}`;
+    )}&pQueryId=${encodeURIComponent(queryId)}&pFilters=${encodeURIComponent(
+      filters
+    )}`;
   }
 
   importAssetLocationList(): Observable<AssetLocation[]> {
@@ -315,6 +329,18 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} REQ Rows imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_REQ_ROWS);
+        })
+      );
+  }
+
+  importFinancialStructure(): Observable<FinancialStruct[]> {
+    this.loadingService.addMessage(Msg.MSG_IMPORT_FIN_STRUCT);
+    return this.http
+      .get<FinancialStruct[]>(this.buildQueryURL('5003', ''), this.httpHeader)
+      .pipe(
+        tap((array) => {
+          console.log(`${array.length} Financial Struct records imported`);
+          this.loadingService.removeMessage(Msg.MSG_IMPORT_FIN_STRUCT);
         })
       );
   }

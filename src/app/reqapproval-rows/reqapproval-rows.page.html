@@ -30,6 +30,26 @@
             ></ion-input>
           </ion-col>
         </ion-row>
+        <ion-row class="row">
+          <ion-col>
+            <ion-input
+              label="Cost Center"
+              labelPlacement="stacked"
+              type="text"
+              [(ngModel)]="row.CDCOST_CENTER"
+              readonly="true"
+            ></ion-input>
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="small"
+              color="primary"
+              class="ion-margin-top"
+              (click)="selectCostCenterForRow(row.CDCOST_CENTER, row)"
+              ><ion-icon name="git-merge-outline"></ion-icon
+            ></ion-button>
+          </ion-col>
+        </ion-row>
       </ion-grid>
     </ion-item>
   </ion-list>

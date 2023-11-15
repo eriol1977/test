@@ -158,5 +158,58 @@
         </ion-textarea>
       </ion-col>
     </ion-row>
+    <ion-item-divider *ngIf="getTokenResult">
+      <ion-label> TEST POST </ion-label>
+    </ion-item-divider>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="POST endpoint"
+          labelPlacement="stacked"
+          [(ngModel)]="postEndpoint"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <br />
+        <ion-textarea
+          style="font-size: small"
+          [(ngModel)]="postBody"
+          label="Body"
+          labelPlacement="stacked"
+          rows="10"
+        >
+        </ion-textarea>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-button expand="full" (click)="testPost()">TEST POST</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-item-divider *ngIf="getTokenResult">
+      <ion-label> TEST GET ATTACHMENT </ion-label>
+    </ion-item-divider>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-input
+          type="text"
+          label="pDOCID"
+          labelPlacement="stacked"
+          [(ngModel)]="docid"
+          [clearInput]="true"
+        >
+        </ion-input> </ion-col
+    ></ion-row>
+    <ion-row *ngIf="getTokenResult">
+      <ion-col>
+        <ion-button expand="full" (click)="getAttachment()"
+          >GET ATTACHMENT</ion-button
+        >
+      </ion-col>
+    </ion-row>
   </ion-grid>
 </ion-content>

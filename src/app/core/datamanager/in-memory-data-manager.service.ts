@@ -11,6 +11,7 @@ import {
   WorkRequest,
   REQHeader,
   REQRow,
+  FinancialStruct,
 } from 'src/app/common/models';
 
 @Injectable({
@@ -26,7 +27,7 @@ export class InMemoryDataManager implements DataManager {
   workRequests: WorkRequest[] = [];
   REQHeaders: REQHeader[] = [];
   REQRows: REQRow[] = [];
-
+  financialStruct: FinancialStruct[] = [];
   constructor() {}
 
   getAssetLocationList(): Observable<AssetLocation[]> {
@@ -316,6 +317,87 @@ export class InMemoryDataManager implements DataManager {
   setREQRowsList(list: REQRow[]): Observable<void> {
     const observable = new Observable<void>((observer) => {
       this.REQRows = list;
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]> {
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      let costCenters = this.financialStruct.filter(
+        (fs) =>
+          fs.FLTYPE === 'C' && fs.FLCANC !== 'Y' && fs.PARENTCODE === PARENTCODE
+      );
+      observer.next(costCenters);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getAccounts(PARENTCODE: string): Observable<FinancialStruct[]> {
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      let accounts = this.financialStruct.filter(
+        (fs) =>
+          fs.FLTYPE === 'A' && fs.FLCANC !== 'Y' && fs.PARENTCODE === PARENTCODE
+      );
+      observer.next(accounts);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructRecord(IDFINSTRUCT: string): Observable<FinancialStruct> {
+    const observable = new Observable<FinancialStruct>((observer) => {
+      let record = this.financialStruct.find(
+        (r) => r.IDFINSTRUCT === IDFINSTRUCT
+      );
+      observer.next(record);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructRecordDescriptivePath(
+    IDFINSTRUCT: string
+  ): Observable<string> {
+    const observable = new Observable<string>((observer) => {
+      let rec = this.financialStruct.find(
+        (fs) => fs.IDFINSTRUCT === IDFINSTRUCT
+      );
+      let path = '';
+      if (rec) {
+        path = rec.PATHCODE || '';
+        let codes = path.replace('//', '').split('/');
+        codes.pop(); // removes empty id at the end
+        codes.forEach((code) => {
+          let otherRec = this.financialStruct.find((r) =>
+            r.FLTYPE === 'C' ? r.CDCOST_CENTER === code : r.CDACCOUNT === code
+          );
+          let descr =
+            otherRec?.FLTYPE === 'C'
+              ? otherRec?.DSCOST_CENTER || ''
+              : otherRec?.DSACCOUNT || '';
+          path = path.replace(code, descr);
+        });
+      }
+      observer.next(path);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructList(): Observable<FinancialStruct[]> {
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      observer.next(this.financialStruct);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  setFinancialStruct(list: FinancialStruct[]): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.financialStruct = list;
       observer.next();
       observer.complete();
     });

@@ -7,7 +7,7 @@ export const environment = {
   useSQLite: false,
   databaseName: 'MNT_DB_',
   databaseVersion: 1,
-  mcmURL: 'http://evo-demo:8180/UT_MCM_3_2',
+  mcmURL: 'http://localhost:8080/MCM_3_2',
   serviceUser: 'service',
   servicePassword: 'SeRvIcE_&%1234',
   serviceCompany: '001',

@@ -176,6 +176,15 @@ export class DBTesterPage implements OnInit {
           this.displayResult('Operation not yet implemented!');
         }
         break;
+      case 'financialStruct':
+        if (this.recordId === '') {
+          this.dataManager.getFinancialStructList().subscribe((list) => {
+            this.listResult(list);
+          });
+        } else {
+          this.displayResult('Operation not yet implemented!');
+        }
+        break;
       default:
         this.displayResult('Operation not yet implemented!');
     }

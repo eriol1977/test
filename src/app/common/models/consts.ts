@@ -31,4 +31,5 @@ export const TABLES: SelectOption[] = [
   { value: 'workRequest', label: 'WORK REQUESTS' },
   { value: 'reqHeaders', label: 'REQ HEADERS' },
   { value: 'reqRows', label: 'REQ ROWS' },
+  { value: 'financialStruct', label: 'FINANCIAL STRUCTURE' },
 ];

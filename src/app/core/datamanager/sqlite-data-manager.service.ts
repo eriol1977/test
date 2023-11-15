@@ -12,6 +12,7 @@ import {
   WorkRequest,
   REQHeader,
   REQRow,
+  FinancialStruct,
 } from 'src/app/common/models';
 import { DbnameVersionService } from '../services/dbname-version.service';
 import { DataCache } from './data-cache.service';
@@ -614,6 +615,58 @@ export class SQLiteDataManager implements DataManager {
     // invalidates cache
     this.cache_req_rows_valid = false;
     return this.insertList(list, 'reqRows');
+  }
+
+  getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]> {
+    // TODO
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      observer.next(undefined);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getAccounts(PARENTCODE: string): Observable<FinancialStruct[]> {
+    // TODO
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      observer.next(undefined);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructRecord(IDFINSTRUCT: string): Observable<FinancialStruct> {
+    // TODO
+    const observable = new Observable<FinancialStruct>((observer) => {
+      observer.next(undefined);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructRecordDescriptivePath(
+    IDFINSTRUCT: string
+  ): Observable<string> {
+    // TODO
+    const observable = new Observable<string>((observer) => {
+      observer.next(undefined);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  getFinancialStructList(): Observable<FinancialStruct[]> {
+    // TODO
+    const observable = new Observable<FinancialStruct[]>((observer) => {
+      observer.next(undefined);
+      observer.complete();
+    });
+    return observable;
+  }
+
+  setFinancialStruct(list: FinancialStruct[]): Observable<void> {
+    // TODO
+    return this.insertList(list, 'financialStruct');
   }
 
   /////////////// GENERIC ///////////////////
