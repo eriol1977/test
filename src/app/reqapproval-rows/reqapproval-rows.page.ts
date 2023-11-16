@@ -108,7 +108,7 @@ export class REQApprovalRowsPage implements OnInit {
   // selection of tree node inside a search list
   onNavigationCostCenterSelected(IDFINSTRUCT: string): void {
     // stores the code of the current parent node for the 'Back' operation
-    this.setGoBackCostCenterCode(IDFINSTRUCT);
+    this.setGoBackCostCenterId(IDFINSTRUCT);
     this.dataManager.getCostCenters(IDFINSTRUCT).subscribe((list) => {
       // creates list elements from children cost centers
       let options = list.map((cc) => {
@@ -141,38 +141,140 @@ export class REQApprovalRowsPage implements OnInit {
       );
       if (costCenter?.FLNAVIGATION === 'N') {
         // if a "real" cost center has been selected, the process ends
-        this.dataManager
-          .getFinancialStructRecord(id)
-          .subscribe(
-            (cc) => (this.selectedRow.CDCOST_CENTER = cc.CDCOST_CENTER)
-          );
+        this.dataManager.getFinancialStructRecord(id).subscribe((cc) => {
+          this.selectedRow.CDCOST_CENTER = cc.CDCOST_CENTER;
+          this.selectedRow.CDACCOUNT = '';
+        });
       } else {
-        // otherwise, the next "treeview" level is opened, to show the location's children
+        // otherwise, the next "treeview" level is opened, to show the cost center's children
         this.onNavigationCostCenterSelected(id || '');
       }
     } else {
       // go back to previous path step
-      this.onNavigationCostCenterSelected(this.goBackCostCenterCode);
+      this.onNavigationCostCenterSelected(this.goBackCostCenterId);
     }
   }
 
   onCostCenterCleared(): void {
     this.selectedRow.CDCOST_CENTER = '';
+    this.selectedRow.CDACCOUNT = '';
   }
 
   // stores the code of the "grandpa" cost center to go back to
   // when executing a Back operation from the treeview path
-  private goBackCostCenterCode: string = '';
+  private goBackCostCenterId: string = '';
   private selectedRow: REQRow = this.rows[0];
 
-  private setGoBackCostCenterCode(costCenterCode: string): void {
-    if (costCenterCode === '') this.goBackCostCenterCode == '';
+  private setGoBackCostCenterId(id: string): void {
+    if (id === '') this.goBackCostCenterId == '';
     else
+      this.dataManager.getFinancialStructRecord(id).subscribe((rec) => {
+        this.goBackCostCenterId = rec.PARENTCODE || '';
+      });
+  }
+
+  // selection from "treeview" button (search lists for different levels)
+  selectAccountForRow(CDACCOUNT: string, row: REQRow): void {
+    this.selectedRow = row;
+    if (CDACCOUNT === '') {
+      // starts navigation from the cost center root
+      let IDFINSTRUCT_COST_CENTER =
+        this.financialStructure.find(
+          (fs) => fs.FLTYPE === 'C' && fs.CDCOST_CENTER === row.CDCOST_CENTER
+        )?.IDFINSTRUCT || '';
+      this.onNavigationAccountSelected(IDFINSTRUCT_COST_CENTER);
+    } else {
+      // starts navigation from the parent of the currently selected account
+      let IDFINSTRUCT =
+        this.financialStructure.find(
+          (fs) =>
+            fs.FLTYPE === 'A' &&
+            fs.CDCOST_CENTER === row.CDCOST_CENTER &&
+            fs.CDACCOUNT === CDACCOUNT
+        )?.PARENTCODE || '';
+      this.onNavigationAccountSelected(IDFINSTRUCT);
+    }
+  }
+
+  // selection of tree node inside a search list
+  onNavigationAccountSelected(IDFINSTRUCT: string): void {
+    // stores the code of the current parent node for the 'Back' operation
+    this.setGoBackAccountId(IDFINSTRUCT);
+    this.dataManager.getAccounts(IDFINSTRUCT).subscribe((list) => {
+      // creates list elements from children accounts
+      let options = list.map((cc) => {
+        return {
+          value: cc.IDFINSTRUCT || '',
+          label: cc.CDACCOUNT || '',
+          color: cc.FLNAVIGATION === 'N' ? 'secondary' : '',
+        };
+      });
       this.dataManager
-        .getFinancialStructRecord(costCenterCode)
+        .getFinancialStructRecord(IDFINSTRUCT)
         .subscribe((rec) => {
-          this.goBackCostCenterCode = rec.PARENTCODE || '';
+          // the "go back" path must be displayed only if the parent node is not a cost center
+          // (which works as a "root" node when choosing an account)
+          if (rec.FLTYPE === 'A') {
+            // before proceeding, fills in the descriptive path for the presently selected account
+            this.dataManager
+              .getFinancialStructRecordDescriptivePath(IDFINSTRUCT)
+              .subscribe((path) => {
+                this.searchListService.openSearchList(
+                  'Accounts',
+                  options,
+                  this.onAccountSelectedFromTreeview.bind(this),
+                  this.onAccountCleared.bind(this),
+                  path
+                );
+              });
+          } else {
+            this.searchListService.openSearchList(
+              'Accounts',
+              options,
+              this.onAccountSelectedFromTreeview.bind(this),
+              this.onAccountCleared.bind(this),
+              ''
+            );
+          }
         });
+    });
+  }
+
+  // account was selected from "treeview" search list
+  onAccountSelectedFromTreeview(id: string): void {
+    if (id) {
+      let account = this.financialStructure.find(
+        (rec) => rec.IDFINSTRUCT === id
+      );
+      if (account?.FLNAVIGATION === 'N') {
+        // if a "real" account has been selected, the process ends
+        this.dataManager
+          .getFinancialStructRecord(id)
+          .subscribe((acc) => (this.selectedRow.CDACCOUNT = acc.CDACCOUNT));
+      } else {
+        // otherwise, the next "treeview" level is opened, to show the account's children
+        this.onNavigationAccountSelected(id || '');
+      }
+    } else {
+      // go back to previous path step
+      this.onNavigationAccountSelected(this.goBackAccountId);
+    }
+  }
+
+  onAccountCleared(): void {
+    this.selectedRow.CDACCOUNT = '';
+  }
+
+  // stores the code of the "grandpa" account to go back to
+  // when executing a Back operation from the treeview path
+  private goBackAccountId: string = '';
+
+  private setGoBackAccountId(id: string): void {
+    if (id === '') this.goBackAccountId == '';
+    else
+      this.dataManager.getFinancialStructRecord(id).subscribe((rec) => {
+        this.goBackAccountId = rec.PARENTCODE || '';
+      });
   }
 
   goBack(): void {
