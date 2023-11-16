@@ -18,11 +18,30 @@
       <ion-grid>
         <ion-row class="row">
           <ion-col>
-            <h5>{{row.IDITEM}}</h5>
-            <h6>{{row.DSITEM}}</h6>
+            <ion-input
+              label="Item Id"
+              labelPlacement="stacked"
+              type="text"
+              [(ngModel)]="row.IDITEM"
+              readonly="true"
+            ></ion-input>
           </ion-col>
+        </ion-row>
+        <ion-row class="row">
           <ion-col>
             <ion-input
+              label="Item Description"
+              labelPlacement="stacked"
+              type="text"
+              [(ngModel)]="row.DSITEM"
+              readonly="true"
+            ></ion-input>
+          </ion-col>
+        </ion-row>
+        <ion-row class="row">
+          <ion-col>
+            <ion-input
+              class="active-input"
               label="Quantity"
               labelPlacement="stacked"
               type="number"
@@ -33,6 +52,7 @@
         <ion-row class="row">
           <ion-col>
             <ion-input
+              class="active-input"
               label="Cost Center"
               labelPlacement="stacked"
               type="text"
@@ -53,6 +73,7 @@
         <ion-row class="row">
           <ion-col>
             <ion-input
+              class="active-input"
               label="Account"
               labelPlacement="stacked"
               type="text"
@@ -69,6 +90,17 @@
               (click)="selectAccountForRow(row.CDACCOUNT, row)"
               ><ion-icon name="git-merge-outline"></ion-icon
             ></ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row class="row">
+          <ion-col>
+            <ion-input
+              class="active-input"
+              label="Notes"
+              labelPlacement="stacked"
+              type="text"
+              [(ngModel)]="row.NTPHASE"
+            ></ion-input>
           </ion-col>
         </ion-row>
       </ion-grid>

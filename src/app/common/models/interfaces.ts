@@ -173,6 +173,7 @@ export interface REQRow {
   CDUOM: string;
   CDCOST_CENTER: string;
   CDACCOUNT: string;
+  NTPHASE: string;
 }
 
 export interface FinancialStruct {
