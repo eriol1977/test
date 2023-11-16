@@ -56,6 +56,7 @@ export abstract class DataManager {
   abstract setREQHeadersList(list: REQHeader[]): Observable<void>;
   abstract getREQRowsList(): Observable<REQRow[]>;
   abstract setREQRowsList(list: REQRow[]): Observable<void>;
+  abstract deleteREQ(IDDOC: string): Observable<void>;
   abstract getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]>;
   abstract getAccounts(PARENTCODE: string): Observable<FinancialStruct[]>;
   abstract getFinancialStructRecord(

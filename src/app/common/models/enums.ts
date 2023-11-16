@@ -21,4 +21,5 @@ export enum ImportType {
 
 export enum ExportType {
   WR = 'WR',
+  REQ = 'REQ',
 }

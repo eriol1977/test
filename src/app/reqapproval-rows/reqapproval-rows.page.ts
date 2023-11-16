@@ -1,9 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DocumentStatus, FinancialStruct, REQRow } from '../common/models';
-import { LoaderService, SearchListService } from '../core';
+import {
+  DocumentStatus,
+  ExportType,
+  FinancialStruct,
+  REQRow,
+  REQValidated,
+} from '../common/models';
+import {
+  LoaderService,
+  SearchListService,
+  SyncService,
+  ToastService,
+} from '../core';
 import { Observable } from 'rxjs';
 import { DataManager } from '../core/datamanager/data-manager';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-reqapproval-rows',
@@ -16,18 +28,15 @@ export class REQApprovalRowsPage implements OnInit {
   rows: REQRow[] = [];
   statusList: DocumentStatus[] = [];
   financialStructure: FinancialStruct[] = [];
-  // costCenterIdMap: Map<string, string> = new Map<string, string>();
-  // costCenterMap: Map<string, FinancialStruct> = new Map<
-  //   string,
-  //   FinancialStruct
-  // >();
 
   constructor(
     private loadingService: LoaderService,
     private router: Router,
     private route: ActivatedRoute,
     private dataManager: DataManager,
-    private searchListService: SearchListService
+    private searchListService: SearchListService,
+    private syncService: SyncService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -86,8 +95,49 @@ export class REQApprovalRowsPage implements OnInit {
   }
 
   changeStatus(statusCode: string) {
-    alert(`Change status to ${statusCode}`);
+    this.dataManager.getREQHeader(this.reqId).subscribe((reqHeader) => {
+      let req: REQValidated = {
+        IDAPP: this.generateRandomString(15),
+        IDDOC: reqHeader.IDDOC,
+        CDUNIT: reqHeader.CDUNIT,
+        NRDOC: reqHeader.NRDOC,
+        DSDOC: reqHeader.DSDOC,
+        FLSTATUS: statusCode,
+        CREATIONUSER: environment.loggedUserCode,
+        ROWS: [],
+      };
+      for (let row of this.rows) {
+        req.ROWS.push({
+          CPROWNUM: row.CPROWNUM,
+          IDITEM: row.IDITEM,
+          CDKEY: row.CDKEY,
+          QTEXAM: row.QTITEM,
+          CDUOM: row.CDUOM,
+          CDCOST_CENTER: row.CDCOST_CENTER,
+          CDACCOUNT: row.CDACCOUNT,
+          NTPHASE: row.NTPHASE,
+        });
+      }
+      this.syncService.export(ExportType.REQ, req).subscribe(() => {
+        this.toastService.showSuccess('REQ exported');
+        this.router.navigate(['/reqapproval']);
+        this.dataManager.deleteREQ(req.IDDOC).subscribe(() => {
+          this.loadingService.hide();
+        });
+      });
+    });
   }
+
+  private generateRandomString = (length: number) => {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
 
   // selection from "treeview" button (search lists for different levels)
   selectCostCenterForRow(CDCOST_CENTER: string, row: REQRow): void {

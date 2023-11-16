@@ -9,4 +9,5 @@ export const environment = {
   serviceCompany: '001',
   loggedUser: 'carpenter1_vi',
   loggedPassword: 'IB1234',
+  loggedUserCode: '1004',
 };

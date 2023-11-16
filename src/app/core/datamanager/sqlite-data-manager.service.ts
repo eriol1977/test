@@ -617,6 +617,15 @@ export class SQLiteDataManager implements DataManager {
     return this.insertList(list, 'reqRows');
   }
 
+  deleteREQ(IDDOC: string): Observable<void> {
+    // TODO
+    const observable = new Observable<void>((observer) => {
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
   getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]> {
     // TODO
     const observable = new Observable<FinancialStruct[]>((observer) => {

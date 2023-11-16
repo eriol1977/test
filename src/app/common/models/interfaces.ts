@@ -158,6 +158,7 @@ export interface REQHeader {
   NRDOC: string;
   DSDOC: string;
   DTDOC: string;
+  CDUNIT: string;
   DSUNIT: string;
   CDCURRENCY: string;
   NEXTSTATUSES: string;
@@ -168,8 +169,31 @@ export interface REQRow {
   IDDOC: string;
   CPROWNUM: string;
   IDITEM: string;
+  CDKEY: string;
   DSITEM: string;
   QTITEM: string;
+  CDUOM: string;
+  CDCOST_CENTER: string;
+  CDACCOUNT: string;
+  NTPHASE: string;
+}
+
+export interface REQValidated {
+  IDAPP: string;
+  IDDOC: string;
+  CDUNIT: string;
+  NRDOC: string;
+  DSDOC: string;
+  FLSTATUS: string;
+  CREATIONUSER: string;
+  ROWS: REQRowValidated[];
+}
+
+export interface REQRowValidated {
+  CPROWNUM: string;
+  IDITEM: string;
+  CDKEY: string;
+  QTEXAM: string;
   CDUOM: string;
   CDCOST_CENTER: string;
   CDACCOUNT: string;

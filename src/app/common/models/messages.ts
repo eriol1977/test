@@ -19,4 +19,5 @@ export enum Msg {
   MSG_SAVE_REQ_HEADERS = '<BR/>Saving REQ Headers...',
   MSG_SAVE_REQ_ROWS = '<BR/>Saving REQ Rows...',
   MSG_SAVE_FIN_STRUCT = '<BR/>Saving Financial Structure...',
+  MSG_EXPORT_REQ = '<BR/>Exporting REQ...',
 }

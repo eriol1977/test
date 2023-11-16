@@ -323,6 +323,18 @@ export class InMemoryDataManager implements DataManager {
     return observable;
   }
 
+  deleteREQ(IDDOC: string): Observable<void> {
+    const observable = new Observable<void>((observer) => {
+      this.REQHeaders = this.REQHeaders.filter(
+        (reqHeader) => reqHeader.IDDOC !== IDDOC
+      );
+      this.REQRows = this.REQRows.filter((reqRow) => reqRow.IDDOC !== IDDOC);
+      observer.next();
+      observer.complete();
+    });
+    return observable;
+  }
+
   getCostCenters(PARENTCODE: string): Observable<FinancialStruct[]> {
     const observable = new Observable<FinancialStruct[]>((observer) => {
       let costCenters = this.financialStruct.filter(

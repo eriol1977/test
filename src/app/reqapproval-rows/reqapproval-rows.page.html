@@ -19,10 +19,10 @@
         <ion-row class="row">
           <ion-col>
             <ion-input
-              label="Item Id"
+              label="Item"
               labelPlacement="stacked"
               type="text"
-              [(ngModel)]="row.IDITEM"
+              [(ngModel)]="row.CDKEY"
               readonly="true"
             ></ion-input>
           </ion-col>
@@ -30,7 +30,7 @@
         <ion-row class="row">
           <ion-col>
             <ion-input
-              label="Item Description"
+              label="Description"
               labelPlacement="stacked"
               type="text"
               [(ngModel)]="row.DSITEM"
@@ -42,7 +42,7 @@
           <ion-col>
             <ion-input
               class="active-input"
-              label="Quantity"
+              [label]="'Quantity (' + row.CDUOM + ')'"
               labelPlacement="stacked"
               type="number"
               [(ngModel)]="row.QTITEM"

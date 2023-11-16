@@ -13,6 +13,7 @@ export const environment = {
   serviceCompany: '001',
   loggedUser: 'admin',
   loggedPassword: 'EVO_001',
+  loggedUserCode: '1',
 };
 
 /*

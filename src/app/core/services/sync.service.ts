@@ -22,6 +22,7 @@ import {
   REQHeader,
   REQRow,
   FinancialStruct,
+  REQValidated,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -503,6 +504,24 @@ export class SyncService {
       );
   }
 
+  exportREQ(req: REQValidated): Observable<any> {
+    this.loadingService.show({
+      message: Msg.MSG_EXPORT_REQ,
+    });
+    return this.http.post<string>(
+      `${environment.mcmURL}/rest/validatereq?pToken=${encodeURIComponent(
+        this.token
+      )}`,
+      req,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+        responseType: 'text' as 'json',
+      }
+    );
+  }
+
   // to be called from outside SyncService
   // (automatically provides the necessary token)
   export(exportType: ExportType, record: any): Observable<any> {
@@ -512,6 +531,18 @@ export class SyncService {
           switch (exportType) {
             case ExportType.WR:
               this.exportWorkRequest(record).subscribe({
+                next: (res) => {
+                  this.token = '';
+                  observer.next(res);
+                  observer.complete();
+                },
+                error: (e) => {
+                  this.handleError(e);
+                },
+              });
+              break;
+            case ExportType.REQ:
+              this.exportREQ(record).subscribe({
                 next: (res) => {
                   this.token = '';
                   observer.next(res);
