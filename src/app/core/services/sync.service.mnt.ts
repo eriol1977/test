@@ -145,6 +145,9 @@ export class SyncServiceMaintenance {
                                   this.loadingService.removeMessage(
                                     Msg.MSG_SAVE_PERSONNEL
                                   );
+                                  console.log('Import completed');
+                                  observer.next();
+                                  observer.complete();
                                 });
                             });
                         });
