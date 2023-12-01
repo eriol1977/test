@@ -6,7 +6,7 @@ import { SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { DbnameVersionService } from './dbname-version.service';
 import { Platform } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
-import { SyncService } from 'src/app/core';
+import { SyncServiceMaintenance, SyncServicePurchase } from 'src/app/core';
 import { LoaderService } from '../../core/services/loader.service';
 
 @Injectable()
@@ -20,7 +20,8 @@ export class InitializeAppService {
     private platform: Platform,
     private sqliteService: SQLiteService,
     private dbVerService: DbnameVersionService,
-    private syncService: SyncService,
+    private syncServiceMaintenance: SyncServiceMaintenance,
+    private syncServicePurchase: SyncServicePurchase,
     private loadingService: LoaderService
   ) {
     this.platform.ready().then(() => {});
@@ -48,10 +49,29 @@ export class InitializeAppService {
     }
 
     // synchronizes all data to/from MCM
-    this.syncService.synchronize().subscribe(() => {
+    if (environment.maintenanceModuleActive) {
+      this.syncServiceMaintenance.synchronize().subscribe(() => {
+        if (!environment.purchaseModuleActive) {
+          this.isAppInit = true;
+          this.loadingService.hide();
+        }
+      });
+    }
+
+    if (environment.purchaseModuleActive) {
+      this.syncServicePurchase.synchronize().subscribe(() => {
+        this.isAppInit = true;
+        this.loadingService.hide();
+      });
+    }
+
+    if (
+      !environment.maintenanceModuleActive &&
+      !environment.purchaseModuleActive
+    ) {
       this.isAppInit = true;
       this.loadingService.hide();
-    });
+    }
   }
 
   async initializeDatabase() {

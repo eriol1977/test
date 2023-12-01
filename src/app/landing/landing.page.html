@@ -11,18 +11,22 @@
   <ion-text class="ion-text-center" color="primary">
     <h1>InfoSHIP</h1>
   </ion-text>
-  <ion-button expand="full" (click)="goToNewWorkRequest()"
+  <ion-button expand="full" (click)="goToNewWorkRequest()" *ngIf="isMaintenance"
     >New Work Request</ion-button
   >
-  <ion-button expand="full" (click)="goToWorkRequests()"
+  <ion-button expand="full" (click)="goToWorkRequests()" *ngIf="isMaintenance"
     >Work Requests</ion-button
   >
 
-  <ion-button expand="full" (click)="goToREQApproval()"
+  <ion-button expand="full" (click)="goToREQApproval()" *ngIf="isPurchase"
     >REQ Approval</ion-button
   >
 
-  <ion-button expand="full" (click)="goToDBTester()">DB Tester</ion-button>
+  <ion-button expand="full" (click)="goToDBTester()" *ngIf="isDevelopment"
+    >DB Tester</ion-button
+  >
 
-  <ion-button expand="full" (click)="goToWSTester()">WS Tester</ion-button>
+  <ion-button expand="full" (click)="goToWSTester()" *ngIf="isDevelopment"
+    >WS Tester</ion-button
+  >
 </ion-content>

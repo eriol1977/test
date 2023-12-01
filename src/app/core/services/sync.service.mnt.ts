@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { throwError } from 'rxjs/internal/observable/throwError';
+import { Observable, forkJoin } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import {
   HttpClient,
   HttpErrorResponse,
@@ -19,10 +18,6 @@ import {
   Status,
   ExportType,
   ImportType,
-  REQHeader,
-  REQRow,
-  FinancialStruct,
-  REQValidated,
 } from 'src/app/common/models';
 import { ToastService } from './toast.service';
 import { LoaderService } from './loader.service';
@@ -33,7 +28,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class SyncService {
+export class SyncServiceMaintenance {
   // prettier-ignore
   private httpHeader = {
     headers: new HttpHeaders({
@@ -55,7 +50,7 @@ export class SyncService {
     const observable = new Observable<void>((observer) => {
       this.loadingService
         .show({
-          message: 'Synchronization...',
+          message: 'Maintenance synchronization...',
         })
         .then(() => {
           this.getToken().subscribe(() => {
@@ -70,7 +65,7 @@ export class SyncService {
 
                 forkJoin(ops).subscribe(() => {
                   this.token = '';
-                  console.log('Synchronization completed');
+                  console.log('Maintenance synchronization completed');
                   observer.next();
                   observer.complete();
                 });
@@ -94,9 +89,6 @@ export class SyncService {
       imports.push(this.importComponentProblemsList());
       imports.push(this.importProblemsList());
       imports.push(this.importPersonnelList());
-      imports.push(this.importREQHeaders());
-      imports.push(this.importREQRows());
-      imports.push(this.importFinancialStructure());
 
       forkJoin(imports).subscribe({
         next: ([
@@ -106,9 +98,6 @@ export class SyncService {
           compProblemsData,
           problemsData,
           personnelData,
-          REQHeaders,
-          REQRows,
-          financialStruct,
         ]) => {
           // cannot use forkJoin here, because of transaction issues when using SQLiteDataManager:
           // the set operations cannot be executed in parallel
@@ -156,42 +145,6 @@ export class SyncService {
                                   this.loadingService.removeMessage(
                                     Msg.MSG_SAVE_PERSONNEL
                                   );
-
-                                  this.loadingService.addMessage(
-                                    Msg.MSG_SAVE_REQ_HEADERS
-                                  );
-                                  this.dataManager
-                                    .setREQHeadersList(REQHeaders)
-                                    .subscribe(() => {
-                                      this.loadingService.removeMessage(
-                                        Msg.MSG_SAVE_REQ_HEADERS
-                                      );
-
-                                      this.loadingService.addMessage(
-                                        Msg.MSG_SAVE_REQ_ROWS
-                                      );
-                                      this.dataManager
-                                        .setREQRowsList(REQRows)
-                                        .subscribe(() => {
-                                          this.loadingService.removeMessage(
-                                            Msg.MSG_SAVE_REQ_ROWS
-                                          );
-
-                                          this.loadingService.addMessage(
-                                            Msg.MSG_SAVE_FIN_STRUCT
-                                          );
-                                          this.dataManager
-                                            .setFinancialStruct(financialStruct)
-                                            .subscribe(() => {
-                                              this.loadingService.removeMessage(
-                                                Msg.MSG_SAVE_FIN_STRUCT
-                                              );
-                                              console.log('Import completed');
-                                              observer.next();
-                                              observer.complete();
-                                            });
-                                        });
-                                    });
                                 });
                             });
                         });
@@ -207,18 +160,16 @@ export class SyncService {
     return observable;
   }
 
-  private buildQueryURL(queryId: string, filters: string): string {
-    return `${environment.mcmURL}/rest/query?pToken=${encodeURIComponent(
+  private buildQueryURL(queryId: string): string {
+    return `${environment.serverURL}/rest/query?pToken=${encodeURIComponent(
       this.token
-    )}&pQueryId=${encodeURIComponent(queryId)}&pFilters=${encodeURIComponent(
-      filters
-    )}`;
+    )}&pQueryId=${encodeURIComponent(queryId)}`;
   }
 
   importAssetLocationList(): Observable<AssetLocation[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_ASSET_LOCATIONS);
     return this.http
-      .get<AssetLocation[]>(this.buildQueryURL('4002', ''), this.httpHeader)
+      .get<AssetLocation[]>(this.buildQueryURL('4002'), this.httpHeader)
       .pipe(
         map((locArray) =>
           locArray
@@ -237,7 +188,7 @@ export class SyncService {
   importClassificationsList(): Observable<Classification[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_CLASSIFICATIONS);
     return this.http
-      .get<Classification[]>(this.buildQueryURL('4001', ''), this.httpHeader)
+      .get<Classification[]>(this.buildQueryURL('4001'), this.httpHeader)
       .pipe(
         tap((array) => {
           console.log(`${array.length} Classifications imported`);
@@ -249,7 +200,7 @@ export class SyncService {
   importComponentsList(): Observable<ComponentAsset[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENTS);
     return this.http
-      .get<ComponentAsset[]>(this.buildQueryURL('4003', ''), this.httpHeader)
+      .get<ComponentAsset[]>(this.buildQueryURL('4003'), this.httpHeader)
       .pipe(
         map((compArray) =>
           compArray.sort((comp1, comp2) =>
@@ -266,7 +217,7 @@ export class SyncService {
   importComponentProblemsList(): Observable<ComponentProblem[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_COMPONENT_PROBLEMS);
     return this.http
-      .get<ComponentProblem[]>(this.buildQueryURL('4005', ''), this.httpHeader)
+      .get<ComponentProblem[]>(this.buildQueryURL('4005'), this.httpHeader)
       .pipe(
         tap((array) => {
           console.log(`${array.length} Component Problems imported`);
@@ -278,7 +229,7 @@ export class SyncService {
   importProblemsList(): Observable<Problem[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_PROBLEMS);
     return this.http
-      .get<Problem[]>(this.buildQueryURL('4004', ''), this.httpHeader)
+      .get<Problem[]>(this.buildQueryURL('4004'), this.httpHeader)
       .pipe(
         map((probArray) =>
           probArray.filter(
@@ -296,7 +247,7 @@ export class SyncService {
   importPersonnelList(): Observable<Personnel[]> {
     this.loadingService.addMessage(Msg.MSG_IMPORT_PERSONNEL);
     return this.http
-      .get<Personnel[]>(this.buildQueryURL('9', ''), this.httpHeader)
+      .get<Personnel[]>(this.buildQueryURL('9'), this.httpHeader)
       .pipe(
         map((persArray) =>
           persArray.sort((pers1, pers2) =>
@@ -306,42 +257,6 @@ export class SyncService {
         tap((array) => {
           console.log(`${array.length} Personnel imported`);
           this.loadingService.removeMessage(Msg.MSG_IMPORT_PERSONNEL);
-        })
-      );
-  }
-
-  importREQHeaders(): Observable<REQHeader[]> {
-    this.loadingService.addMessage(Msg.MSG_IMPORT_REQ_HEADERS);
-    return this.http
-      .get<REQHeader[]>(this.buildQueryURL('5001', ''), this.httpHeader)
-      .pipe(
-        tap((array) => {
-          console.log(`${array.length} REQ Headers imported`);
-          this.loadingService.removeMessage(Msg.MSG_IMPORT_REQ_HEADERS);
-        })
-      );
-  }
-
-  importREQRows(): Observable<REQRow[]> {
-    this.loadingService.addMessage(Msg.MSG_IMPORT_REQ_ROWS);
-    return this.http
-      .get<REQRow[]>(this.buildQueryURL('5002', ''), this.httpHeader)
-      .pipe(
-        tap((array) => {
-          console.log(`${array.length} REQ Rows imported`);
-          this.loadingService.removeMessage(Msg.MSG_IMPORT_REQ_ROWS);
-        })
-      );
-  }
-
-  importFinancialStructure(): Observable<FinancialStruct[]> {
-    this.loadingService.addMessage(Msg.MSG_IMPORT_FIN_STRUCT);
-    return this.http
-      .get<FinancialStruct[]>(this.buildQueryURL('5003', ''), this.httpHeader)
-      .pipe(
-        tap((array) => {
-          console.log(`${array.length} Financial Struct records imported`);
-          this.loadingService.removeMessage(Msg.MSG_IMPORT_FIN_STRUCT);
         })
       );
   }
@@ -488,7 +403,7 @@ export class SyncService {
     });
     return this.http
       .post<WorkRequest>(
-        `${environment.mcmURL}/rest/wr?pToken=${encodeURIComponent(
+        `${environment.serverURL}/rest/wr?pToken=${encodeURIComponent(
           this.token
         )}`,
         workRequest,
@@ -504,24 +419,6 @@ export class SyncService {
       );
   }
 
-  exportREQ(req: REQValidated): Observable<any> {
-    this.loadingService.show({
-      message: Msg.MSG_EXPORT_REQ,
-    });
-    return this.http.post<string>(
-      `${environment.mcmURL}/rest/validatereq?pToken=${encodeURIComponent(
-        this.token
-      )}`,
-      req,
-      {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-        }),
-        responseType: 'text' as 'json',
-      }
-    );
-  }
-
   // to be called from outside SyncService
   // (automatically provides the necessary token)
   export(exportType: ExportType, record: any): Observable<any> {
@@ -531,18 +428,6 @@ export class SyncService {
           switch (exportType) {
             case ExportType.WR:
               this.exportWorkRequest(record).subscribe({
-                next: (res) => {
-                  this.token = '';
-                  observer.next(res);
-                  observer.complete();
-                },
-                error: (e) => {
-                  this.handleError(e);
-                },
-              });
-              break;
-            case ExportType.REQ:
-              this.exportREQ(record).subscribe({
                 next: (res) => {
                   this.token = '';
                   observer.next(res);
@@ -581,7 +466,7 @@ export class SyncService {
   private doGetToken(): Observable<any> {
     return this.http.get(
       `${
-        environment.mcmURL
+        environment.serverURL
       }/rest/gettoken?pToken=${this.prepareTokenForRequest()}`,
       {
         responseType: 'text',
@@ -622,7 +507,7 @@ export class SyncService {
 
   private doValidateUser(): Observable<any> {
     return this.http.get(
-      `${environment.mcmURL}/rest/validate?pToken=${encodeURIComponent(
+      `${environment.serverURL}/rest/validate?pToken=${encodeURIComponent(
         this.token
       )}&pParam=${this.prepareUserInfoForRequest()}`,
       {

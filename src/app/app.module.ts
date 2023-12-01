@@ -15,7 +15,8 @@ import {
   LoaderService,
   SearchListService,
   ToastService,
-  SyncService,
+  SyncServiceMaintenance,
+  SyncServicePurchase,
 } from './core';
 import { DataManager } from './core/datamanager/data-manager';
 import { InMemoryDataManager } from './core/datamanager/in-memory-data-manager.service';
@@ -41,7 +42,8 @@ export function initializeFactory(init: InitializeAppService) {
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    SyncService,
+    SyncServiceMaintenance,
+    SyncServicePurchase,
     ToastService,
     LoaderService,
     SearchListService,

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-landing',
@@ -7,6 +8,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./landing.page.scss'],
 })
 export class LandingPage implements OnInit {
+  public isMaintenance: boolean = environment.maintenanceModuleActive;
+  public isPurchase: boolean = environment.purchaseModuleActive;
+  public isDevelopment: boolean = environment.isDevelopmentVersion;
+
   constructor(private router: Router) {}
 
   ngOnInit() {}

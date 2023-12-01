@@ -21,7 +21,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { SearchListService } from '../../core/services/search-list.service';
 import { AlertController } from '@ionic/angular';
-import { SyncService } from 'src/app/core';
+import { SyncServiceMaintenance } from 'src/app/core';
 import { DataManager } from 'src/app/core/datamanager/data-manager';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -94,7 +94,7 @@ export class NewWorkRequestPage implements OnInit {
     private toastService: ToastService,
     private searchListService: SearchListService,
     private alertController: AlertController,
-    private syncService: SyncService,
+    private syncService: SyncServiceMaintenance,
     private dataManager: DataManager,
     private router: Router,
     private route: ActivatedRoute

@@ -7,13 +7,17 @@ export const environment = {
   useSQLite: false,
   databaseName: 'MNT_DB_',
   databaseVersion: 1,
-  mcmURL: 'http://localhost:8080/MCM_3_2',
+  serverURL: 'http://evo-dev1:8280/DEV_Bertolino_Asset_411',
+  isUsingMCM: true,
   serviceUser: 'service',
-  servicePassword: 'SeRvIcE_&%1234',
+  servicePassword: 'service',
   serviceCompany: '001',
-  loggedUser: 'admin',
-  loggedPassword: 'EVO_001',
-  loggedUserCode: '1',
+  loggedUser: 'cheng2',
+  loggedPassword: 'EVO1234',
+  loggedUserCode: '1011',
+  maintenanceModuleActive: true,
+  purchaseModuleActive: false,
+  isDevelopmentVersion: true,
 };
 
 /*

@@ -10,12 +10,13 @@ import {
 import {
   LoaderService,
   SearchListService,
-  SyncService,
+  SyncServicePurchase,
   ToastService,
 } from '../core';
 import { Observable } from 'rxjs';
 import { DataManager } from '../core/datamanager/data-manager';
 import { environment } from 'src/environments/environment';
+import { AESService } from '../core/services/aes.service';
 
 @Component({
   selector: 'app-reqapproval-rows',
@@ -35,8 +36,9 @@ export class REQApprovalRowsPage implements OnInit {
     private route: ActivatedRoute,
     private dataManager: DataManager,
     private searchListService: SearchListService,
-    private syncService: SyncService,
-    private toastService: ToastService
+    private syncService: SyncServicePurchase,
+    private toastService: ToastService,
+    private aes: AESService
   ) {}
 
   ngOnInit() {
@@ -103,7 +105,11 @@ export class REQApprovalRowsPage implements OnInit {
         NRDOC: reqHeader.NRDOC,
         DSDOC: reqHeader.DSDOC,
         FLSTATUS: statusCode,
-        CREATIONUSER: environment.loggedUserCode,
+        CREATIONUSER: environment.isUsingMCM
+          ? environment.loggedUserCode
+          : this.aes.encryptStr(
+              `${environment.loggedUser}${this.aes.SEPARATOR}${environment.loggedPassword}`
+            ),
         ROWS: [],
       };
       for (let row of this.rows) {

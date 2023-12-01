@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./wstester.page.scss'],
 })
 export class WSTesterPage implements OnInit {
-  BASE_URL: string = `${environment.mcmURL}/rest`;
+  BASE_URL: string = `${environment.serverURL}/rest`;
 
   serviceUsername: string = environment.serviceUser;
   servicePassword: string = environment.servicePassword;
@@ -91,26 +91,18 @@ export class WSTesterPage implements OnInit {
 
   query(): void {
     this.queryResult = '';
-    this.doQuery().subscribe((res) => (this.queryResult = JSON.stringify(res)));
+    this.doQuery().subscribe((res) => {
+      this.queryResult = JSON.stringify(res);
+      console.log(res);
+    });
   }
 
-  /**
-   * Es. pFilters:
-   * 0$||$$||$$||$$||$2023-04-01 00:00:00.0$||$$||$ (records with update time >= than the informed timestamp)
-   * 0$||$$||$$||$100$||$$||$$||$ (the first 100 records)
-   * 0$||$$||$$||$$||$$||$7$||$ (the exact record with RECORDCOUNTER field == 7)
-   * 0$||$1004$||$$||$$||$$||$7$||$ (applies extra filters defined in mm_export_filter for FILTERUSERCODE 1004)
-   * 0$||$$||$1016$||$$||$$||$7$||$ (applies extra filters defined in mm_export_filter for FILTERUSERGROUPCODE 1016)
-   * Obs: the first parameter can be 0 (don't trim result) or 1 (trim result)
-   */
   doQuery(): Observable<any> {
     return this.http
       .get(
         `${this.BASE_URL}/query?pToken=${encodeURIComponent(
           this.getTokenResult
-        )}&pQueryId=${encodeURIComponent(
-          this.queryId
-        )}&pFilters=${encodeURIComponent(this.queryFilters)}`
+        )}&pQueryId=${encodeURIComponent(this.queryId)}${this.queryFilters}`
       )
       .pipe(catchError(this.handleError('Test Token')));
   }
